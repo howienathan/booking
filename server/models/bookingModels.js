@@ -4,7 +4,7 @@ const bookingSchema = new mongoose.Schema(
   {
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Room",
+      ref: "Product",
       required: true,
     },
     name: {

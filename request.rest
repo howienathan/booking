@@ -1,11 +1,13 @@
 ###
 GET http://localhost:5000/api/product
+
+# create product
 ###
 POST http://localhost:5000/api/product
 Content-Type: application/json
 
 {
-    "name": "test Product 2",
+    "name": "test Product 4",
     "price": 500,
     "desc": "description",
     "productNumbers": [{
@@ -15,9 +17,9 @@ Content-Type: application/json
     
 }
 
-# # get haircut
-# ###
-# GET http://localhost:5000/api/haircut/690aedc8762c304d4673a25a
+#  # get haircut
+#  ###
+#  GET http://localhost:5000/api/haircut/690aedc8762c304d4673a25a
 
 # update product
 ###
@@ -29,15 +31,15 @@ Content-Type: application/json
   "price": 10000
 }
 
-#delete product
+# delete product
 ###
 DELETE http://localhost:5000/api/product/690adf27c9728f31e7c851a7
 
-#get bookings
+# get bookings
 ###
 GET http://localhost:5000/api/bookings
 
-#create bookings
+# create bookings
 ###
 POST http://localhost:5000/api/bookings
 Content-Type: application/json
@@ -51,7 +53,7 @@ Content-Type: application/json
 
 }
 
-#update Booking
+# update Booking
 ###
 PUT http://localhost:5000/api/bookings/690b5689bef71edb22383e1b
 Content-Type: application/json
@@ -61,7 +63,40 @@ Content-Type: application/json
   "email": "updateemail@gmail.com"
 }
 
-#delete Booking
+# delete Booking
 ###
 DELETE  http://localhost:5000/api/bookings/690b5689bef71edb22383e1b
- 
+
+# get users
+###
+GET http://localhost:5000/api/users 
+
+# create
+###
+POST http://localhost:5000/api/users
+Content-Type: application/json
+
+{
+  "name": "bangka belitung",
+  "email": "mabarbang@gmail.com",
+  "password": "anjaymabar2"
+
+}
+
+# login
+###
+POST http://localhost:5000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "mabarbang@gmail.com",
+  "password": "anjaymabar2"
+}
+
+#logout User
+###
+http://localhost:5000/api/users/logout
+
+# check auth
+###
+GET http://localhost:5000/auth

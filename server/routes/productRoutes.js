@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { auth } = require("../middleware/authMiddleware")
 const { getProduct, createProduct, updateProduct, deleteProduct } = require("../controllers/productController");
 
 const router = Router();
@@ -7,15 +8,15 @@ const router = Router();
 router.get("/", getProduct);
 
 // Create a new product
-router.post("/", createProduct);
+router.post("/",auth, createProduct);
 
 // // get haircut
 // router.post("/", getHaircut);
 
 // Update product by ID
-router.put("/:id", updateProduct);
+router.put("/:id",auth, updateProduct);
 
 // delete product
-router.delete("/:id", deleteProduct);
+router.delete("/:id",auth, deleteProduct);
 
 module.exports = router;
