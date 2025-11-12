@@ -3,23 +3,35 @@ const User = require("../models/usersModels");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.cookies.jwt;
+    const token = req.cookies?.jwt; // pake optional chaining biar aman
+
     if (!token) {
-      return res.status(400).json({ message: "not authorized" });
+      return res.status(401).json({ message: "Not authorized, no token" });
     }
 
-    const data = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(data.id);
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Cari user berdasarkan ID di token
+    const user = await User.findById(decoded.id).select("-password"); // hide password
 
     if (!user) {
-      return res.status(400).json({ message: "not authorized" });
+      return res.status(401).json({ message: "Not authorized, user not found" });
     }
 
-    req.user = user; // simpan user ke request
-    next(); // lanjut ke controller berikutnya
+    // Simpan user ke req supaya bisa diakses di controller
+    req.user = user;
+
+    next();
   } catch (error) {
-    console.log(error.message);
-    return res.status(400).json({ message: "no token" });
+    console.error("Auth error:", error.message);
+
+    return res.status(401).json({
+      message:
+        error.name === "JsonWebTokenError"
+          ? "Invalid token"
+          : "Not authorized",
+    });
   }
 };
 

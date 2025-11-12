@@ -1,91 +1,93 @@
-const Product = require("../models/productModel")
+const Product = require("../models/productModel");
 
-const getProduct = async (req, res) => {
-    try {
-        const product = await Product.find();
+// get all prod
+const getProduct = async (req, res, next) => {
+  try {
+    const products = await Product.find();
 
-        if(!product) {
-            res.status(400);
-            throw new Error("product not found bro")
-        }
-        return res.status(200).json(product);
-    } catch (error) {
-        next(error)
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
     }
-};
 
-//create product
-const createProduct = async(req, res, next ) => {
-   try{
-    //validate data from user w joi
-    const product = await Product.create(req.body);
-
-    if(!product) {
-        res.status(400);
-        throw new Error("there was a problem while creating ");
-    }
-    return res.status(201).json(product);
-   } catch (error) {
+    return res.status(200).json(products);
+  } catch (error) {
     next(error);
-   }
+  }
 };
 
-// update product
-const updateProduct = async(req,res, next) => {
-    try {
-        const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id,
-            {
-                $set: req.body,
-            },
-            { new: true }
-        );
+// create new prod
+const createProduct = async (req, res, next) => {
+  try {
+    const { name, price, desc, productNumbers } = req.body;
 
-        if(!updatedProduct) {
-            res.status(400);
-            throw new Error("cant Upd this product");
-        }
-
-        return res.status(200).json(updatedProduct);
-
-    } catch (error) {
-        next(error);
+    // convert productNumbers ke array angka
+    let parsedNumbers = [];
+    if (typeof productNumbers === "string") {
+      parsedNumbers = productNumbers.split(",").map((num) => ({
+        number: parseInt(num.trim()),
+        unavaibleDates: [],
+      }));
+    } else if (Array.isArray(productNumbers)) {
+      parsedNumbers = productNumbers.map((num) => ({
+        number: Number(num),
+        unavaibleDates: [],
+      }));
     }
+
+    // ambil path gambar dari req.files
+    const imagePaths = req.files ? req.files.map((file) => file.path) : [];
+
+    const newProduct = await Product.create({
+      name,
+      price,
+      desc,
+      img: imagePaths,
+      productNumbers: parsedNumbers,
+    });
+
+    return res.status(201).json(newProduct);
+  } catch (error) {
+    next(error);
+  }
 };
 
-const deleteProduct = async(req, res, next) => {
+// update
+const updateProduct = async (req, res, next) => {
+  try {
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
 
-    try {
-        const product = await Product.findByIdAndDelete(req.params.id);
-        if(!product) {
-            res.status(400);
-          throw new Error("Product alr deleted");
-        }
-
-        return res.status(200).json({id: req.params.id});
-    } catch(error){
-        next(error)
+    if (!updated) {
+      return res.status(404).json({ message: "Product not found" });
     }
-}
 
- // get haircut
-// const getHaircut = async(req, res, next) => {
-//     try {
-//         const haircut = await Product.findById(req.params.id);
+    return res.status(200).json(updated);
+  } catch (error) {
+    next(error);
+  }
+};
 
-//         if (!haircut) {
-//             res.status(400);
-//             throw new Error("Product not found");
-//         }
-//     } catch (error) {
-//         next(error)
-//     }
-// }
+// delete
+const deleteProduct = async (req, res, next) => {
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    return res.status(200).json({ message: "Product deleted", id: req.params.id });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
-    getProduct,
-    createProduct,
-    // getHaircut,
-    updateProduct,
-    deleteProduct,
-}
+  getProduct,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
