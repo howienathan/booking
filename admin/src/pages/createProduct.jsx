@@ -6,13 +6,15 @@ import axios from "axios";
 const CreateProduct = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const token = localStorage.getItem("token");
 
   const [files, setFiles] = useState([]);
+  const [previewImages, setPreviewImages] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     desc: "",
-    productNumber: ""
+    productNumber: "",
   });
 
   const { name, price, desc, productNumber } = formData;
@@ -31,52 +33,96 @@ const CreateProduct = () => {
   };
 
   const handleFileChange = (e) => {
-    setFiles(e.target.files);
+    const selectedFiles = Array.from(e.target.files);
+    setFiles(selectedFiles);
+
+    const imagePreviews = selectedFiles.map((file) =>
+      URL.createObjectURL(file)
+    );
+    setPreviewImages(imagePreviews);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log("🔄 Mulai submit...");
+
     try {
-      const productArray = productNumber
-        .split(",")
-        .map((item) => ({
-          number: parseInt(item.trim()),
-          unavaibleDate: [],
-        }));
-
-      // Kirim pakai FormData biar bisa upload file
-      const dataToSubmit = new FormData();
-      dataToSubmit.append("name", name);
-      dataToSubmit.append("price", price);
-      dataToSubmit.append("desc", desc);
-      dataToSubmit.append("productNumber", JSON.stringify(productArray));
-
-      for (let i = 0; i < files.length; i++) {
-        dataToSubmit.append("images", files[i]);
+      // 1. Siapkan productNumbers dengan format YANG BENAR
+      let productNumbersArray = [];
+      
+      if (productNumber && productNumber.trim() !== "") {
+        productNumbersArray = productNumber
+          .split(",")
+          .map((item) => {
+            const num = parseInt(item.trim());
+            if (!isNaN(num)) {
+              return {
+                number: num,
+                unavaibleDates: []
+              };
+            }
+            return null;
+          })
+          .filter(item => item !== null);
       }
 
-      // Ganti URL sesuai backend kamu
-      const res = await axios.post("http://localhost:3000/api/products", dataToSubmit, {
-        headers: { "Content-Type": "multipart/form-data" },
+      console.log("📦 Product Numbers:", productNumbersArray);
+
+      // 2. Siapkan FormData
+      const dataToSubmit = new FormData();
+      dataToSubmit.append("name", name);
+      dataToSubmit.append("price", parseFloat(price));
+      dataToSubmit.append("desc", desc);
+      // dataToSubmit.append("productNumbers", JSON.stringify(productNumbersArray));
+
+      // buat nambahin files
+      files.forEach((file) => {
+        dataToSubmit.append("images", file);
       });
 
-      console.log("Product created:", res.data);
-      alert("Product berhasil ditambahkan!");
+      // Debuging
+      console.log("📤 Data yang dikirim:");
+      for (let [key, value] of dataToSubmit.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      // kirim req dengan header sama cookie
+      const res = await axios.post(
+        "http://localhost:5000/api/products",
+        dataToSubmit,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true
+        }
+      );
+
+      console.log("✅ Success:", res.data);
+      alert("🎉 Product berhasil ditambahkan!");
       navigate("/dashboard");
 
     } catch (error) {
-      console.error("Error creating product:", error);
-      alert("Gagal membuat product.");
+      console.error("kocak Error detail:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      const errorMessage = error.response?.data?.message || "Gagal membuat product";
+      alert(`ERROR LOL ${errorMessage}`);
     }
   };
 
   return (
     <div className="flex justify-center pt-28 px-4">
       <div className="w-full max-w-xl rounded-2xl p-8 border shadow">
-        <h1 className="text-4xl font-semibold text-center mb-8">Create Product</h1>
+        <h1 className="text-4xl font-semibold text-center mb-8">
+          Create Product
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="gap-5 grid grid-cols-2">
           <div>
             <label className="block mb-1 font-medium">Name</label>
             <input
@@ -101,7 +147,7 @@ const CreateProduct = () => {
             />
           </div>
 
-          <div>
+          <div className="col-span-2">
             <label className="block mb-1 font-medium">Description</label>
             <textarea
               name="desc"
@@ -112,32 +158,47 @@ const CreateProduct = () => {
             />
           </div>
 
-          <div>
+          {/* <div className="col-span-2">
             <label className="block mb-1 font-medium">Product Numbers</label>
             <textarea
               name="productNumber"
               value={productNumber}
               onChange={handleChange}
-              placeholder="Contoh: 101, 102, 103"
+              placeholder="Contoh: 101, 102, 103 (opsional)"
               className="w-full p-4 py-2 border border-gray-400 rounded-md h-20"
             />
-          </div>
+            <p className="text-sm text-gray-500 mt-1">* Kosongkan jika tidak ada</p>
+          </div> */}
 
-          <div>
+          <div className="col-span-2">
             <label className="block mb-1 font-medium">Images</label>
             <input
               type="file"
               name="images"
               multiple
               onChange={handleFileChange}
-              className="block"
+              className="block mb-3"
               required
             />
+
+            {previewImages.length > 0 && (
+              <div className="grid grid-cols-3 gap-3 mt-2">
+                {previewImages.map((src, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={src}
+                      alt={`Preview ${index}`}
+                      className="w-full h-24 object-cover rounded-md border"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800"
+            className="col-span-2 w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition duration-200"
           >
             Create Product
           </button>

@@ -16,18 +16,18 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Description is required"],
     },
-    img: {
-      type: [String], // simpan banyak gambar
+    img: {  // ✅ FIELD NAME HARUS "img"
+      type: [String], // array of image filenames
       default: [],
     },
     productNumbers: [
       {
         number: { type: Number, required: true },
-        unavaibleDates: { type: [Date], default: [] },
+        unavailableDates: { type: [Date], default: [] },
       },
     ],
   },
-  { timestamps: true } // otomatis simpan createdAt & updatedAt
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+module.exports = mongoose.model("Product", productSchema);  

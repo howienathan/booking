@@ -1,38 +1,58 @@
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv");
 const express = require("express");
-const app = express();
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+
 const connectDB = require("./config/db");
+const { errorHandler } = require("./middleware/errorHandler");
+const { auth } = require("./middleware/authMiddleware");
+
+// Import routes
 const productRoutes = require("./routes/productRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const userRoutes = require("./routes/userRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
-const { errorHandler } = require("./middleware/errorHandler");
-const cookieParser = require("cookie-parser");
-const { auth } = require("./middleware/authMiddleware");
-const path = require("path");
 
+dotenv.config();
+const app = express();
 const port = process.env.PORT || 5000;
 
-// connect DB
+// 🔗 Connect to MongoDB
 connectDB();
 
-// middleware
+// 🔧 Middlewares
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// static folder buat gambar upload
+// ✅ Izinkan akses dari React frontend
+app.use(
+  cors({
+    origin: "http://localhost:3000", 
+    credentials: true, 
+  })
+);
+
+// 🖼️ Static folder untuk akses gambar upload
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// routes
-app.use("/api/product", productRoutes);
+// 🧩 Routes
+app.use("/api/products", productRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 
+// 🧠 Tes auth route (cek token)
 app.get("/auth", auth, (req, res) => {
-  res.json({ token: req.cookies.jwt, user: req.user });
+  res.json({
+    token: req.cookies.jwt,
+    user: req.user,
+  });
 });
 
+// 🛠️ Error handler (paling akhir)
 app.use(errorHandler);
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+// 🚀 Jalankan server
+app.listen(port, () => console.log(`✅ Server running on port ${port}`));

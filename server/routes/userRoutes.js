@@ -11,7 +11,7 @@ router.get("/",auth,  getUsers);
 router.post("/", createUser);
 // login user
 router.post("/login", loginUser);
-//logot user
+//logout user
 router.get("/logout", logoutUser)
 
 

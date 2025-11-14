@@ -1,101 +1,79 @@
-import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { useDispatch,useSelector } from "react-redux";  
-import { loginUser, reset } from "../../features/auth/authSlice";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../../features/auth/authSlice";
 
 const Login = () => {
-   const dispatch = useDispatch(); 
-  const  navigate = useNavigate();
-  const { user, isSuccess } = useSelector((state) => state.auth);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = localStorage.getItem("token")
 
-  const [formData, setFormData] = useState({
-    password: "",
-    email: "",
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/users/login",
+      { email, password },
+      { withCredentials: true }
+    );
+
+    dispatch(loginUser({ email, password }));
+
+    // simpan token yang benar
+    localStorage.setItem("token", res.data.token);
+
+    alert("Login berhasil!");
+    navigate("/dashboard");
+  } catch (err) {
+    alert("Email atau password salah!");
+  }
+};
+
+useEffect(() => {
+  if (token) navigate("/dashboard");
+}, [token]);
+
+  useEffect(() => {
+    console.log("token :", token)
+    if (token) {
+      navigate("/dashboard")
+    }
   });
 
-  const { password, email } = formData;
 
-   useEffect(() => {
-
-    if(isSuccess) {
-      navigate("/dashboard")
-      dispatch(reset())
-    }
-
-  }, [isSuccess, user, dispatch, navigate])
-
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const dataToSubmit = {
-      email,
-      password,
-    };
-
-    dispatch(loginUser(dataToSubmit));
-  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center pt-28 px-4">
-      
-      <h1 className="font-semibold font-sans text-3xl text-center mb-3">
-        Time to enter your universe.
-      </h1>
-      <p className="max-w-md text-center text-gray-600 mb-10">
-        That familiar password is your ticket back—your space is exactly as you left it.
-      </p>
-
+    <div className="flex justify-center items-center h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-5"
+        className=" space-y-4"
       >
-        {/* Email */}
-        <div>
-          <label className="block mb-1 font-medium">Email</label>
-          <input
-            type="text"
-            name="email"
-            value={email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
+        <h2 className="text-2xl font-bold text-pink-400 text-center mb-4">Time to enter ur universe</h2>
+        <p className="text-center font-sans ">ready to enter universe as admin in this dashboard?</p>
 
-        {/* Password */}
-        <div className="relative">
-          <label className="block mb-1 font-medium">Password</label>
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full border px-3 py-2 rounded"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-          />
-
-          {/* Toggle icon */}
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-9 text-gray-600 hover:text-black"
-          >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full border px-3 py-2 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <button
           type="submit"
-          className="w-full mt-4 py-2 bg-primary text-white rounded-md hover:bg-pink-500 duration-300"
+          className="w-full bg-pink-400 font-bold text-white py-2 rounded hover:bg-gray-800"
         >
           Login
         </button>

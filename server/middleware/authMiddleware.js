@@ -3,7 +3,20 @@ const User = require("../models/usersModels");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.cookies?.jwt; // pake optional chaining biar aman
+    // ✅ CARI TOKEN DARI 2 SUMBER: Header dulu, baru Cookie
+    let token;
+
+    if (req.header("Authorization") && req.header("Authorization").startsWith("Bearer ")) {
+      // Ambil dari Header
+      token = req.header("Authorization").replace("Bearer ", "");
+      console.log("🔑 Token dari Header");
+    } else if (req.cookies?.jwt) {
+      // Ambil dari Cookie  
+      token = req.cookies.jwt;
+      console.log("🍪 Token dari Cookie");
+    }
+
+    console.log("Token:", token ? "✅ Ada" : "❌ Tidak ada");
 
     if (!token) {
       return res.status(401).json({ message: "Not authorized, no token" });
@@ -11,26 +24,18 @@ const auth = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Cari user berdasarkan ID di token
-    const user = await User.findById(decoded.id).select("-password"); // hide password
+    const user = await User.findById(decoded.id).select("-password");
 
     if (!user) {
       return res.status(401).json({ message: "Not authorized, user not found" });
     }
 
-    // Simpan user ke req supaya bisa diakses di controller
     req.user = user;
-
     next();
   } catch (error) {
     console.error("Auth error:", error.message);
-
     return res.status(401).json({
-      message:
-        error.name === "JsonWebTokenError"
-          ? "Invalid token"
-          : "Not authorized",
+      message: "Not authorized, token invalid"
     });
   }
 };

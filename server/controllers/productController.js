@@ -1,93 +1,83 @@
 const Product = require("../models/productModel");
 
-// get all prod
+// ✅ GET ALL PRODUCTS
 const getProduct = async (req, res, next) => {
   try {
     const products = await Product.find();
-
-    if (!products || products.length === 0) {
-      return res.status(404).json({ message: "No products found" });
-    }
-
-    return res.status(200).json(products);
+    res.status(200).json(products);
   } catch (error) {
     next(error);
   }
 };
 
-// create new prod
+// ✅ CREATE PRODUCT (sudah ada)
 const createProduct = async (req, res, next) => {
   try {
-    const { name, price, desc, productNumbers } = req.body;
+    const { name, price, desc } = req.body;
+    
+    console.log("📸 FILES:", req.files);
+    
+    const images = req.files ? req.files.map(file => file.filename) : [];
+    
+    console.log("💾 SAVING IMAGES:", images);
 
-    // convert productNumbers ke array angka
-    let parsedNumbers = [];
-    if (typeof productNumbers === "string") {
-      parsedNumbers = productNumbers.split(",").map((num) => ({
-        number: parseInt(num.trim()),
-        unavaibleDates: [],
-      }));
-    } else if (Array.isArray(productNumbers)) {
-      parsedNumbers = productNumbers.map((num) => ({
-        number: Number(num),
-        unavaibleDates: [],
-      }));
-    }
-
-    // ambil path gambar dari req.files
-    const imagePaths = req.files ? req.files.map((file) => file.path) : [];
-
-    const newProduct = await Product.create({
+    const product = await Product.create({
       name,
-      price,
+      price: Number(price),
       desc,
-      img: imagePaths,
-      productNumbers: parsedNumbers,
+      img: images
     });
 
-    return res.status(201).json(newProduct);
+    res.status(201).json({
+      message: "Product created!",
+      product
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// update
+//  UPDATE PRODUCT
 const updateProduct = async (req, res, next) => {
   try {
+    let updateData = {
+      name: req.body.name,
+      price: req.body.price,
+      desc: req.body.desc,
+    };
+
+    // up img kalo ada file yg bary
+    if (req.files && req.files.length > 0) {
+      updateData.img = req.files.map(file => file.filename);
+    }
+
     const updated = await Product.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true }
     );
 
-    if (!updated) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    return res.status(200).json(updated);
+    res.status(200).json(updated);
   } catch (error) {
     next(error);
   }
 };
 
-// delete
+
+// ✅ DELETE PRODUCT  
 const deleteProduct = async (req, res, next) => {
   try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    return res.status(200).json({ message: "Product deleted", id: req.params.id });
+    await Product.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Product deleted" });
   } catch (error) {
     next(error);
   }
 };
 
+// ✅ EXPORT SEMUA FUNCTION
 module.exports = {
   getProduct,
-  createProduct,
+  createProduct, 
   updateProduct,
-  deleteProduct,
+  deleteProduct
 };

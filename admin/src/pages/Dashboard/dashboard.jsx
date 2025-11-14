@@ -10,13 +10,15 @@ const Dashboard = () => {
 
     useEffect(() => {
         if (!user) {
-            navigate("/login")
+         
         }
     })
 
 
   return (
-    <div className='flex justify-center'>d</div>
+    <div className='flex justify-center'>
+    <h1>Where u can absolutely controll everything in your project😈😈</h1>
+    </div>
   )
 }
 

@@ -46,10 +46,9 @@ const createUser = async(req, res, next) => {
 const loginUser = async(req, res, next) => {
     try {
 
-        //todo use joi to validate data;
+       
         const { email, password } = req.body;   
 
-        //get user from db
         const user = await User.findOne({email});
 
         if(!user){
@@ -57,7 +56,6 @@ const loginUser = async(req, res, next) => {
             throw new Error ("cant login into ur acc")
         }
 
-        // compare password
 
         const isCorrect = await bcrypt.compare(password, user.password)
 
@@ -71,10 +69,12 @@ const loginUser = async(req, res, next) => {
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
         res.cookie("jwt", token);
 
-        const { password: userPassword, ...rest } = user._doc;
+        const { password: userPassword,  ...rest } = user._doc;
         console.log(token);
-        return res.status(200).json({
-            ...rest,
+      return res.status(200).json({
+         message: "Login success",
+         token,
+         user: rest
         });
 
     } catch(error){

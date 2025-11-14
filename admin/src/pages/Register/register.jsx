@@ -1,120 +1,122 @@
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { registerUser, reset } from "../../features/auth/authSlice";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-
+import axios from "axios"; // ✅ IMPORT INI
 
 const Register = () => {
-  const dispatch = useDispatch(); 
-  const navigate = useNavigate();
-  const { user, isSuccess } = useSelector((state) => state.auth);
-
   const [formData, setFormData] = useState({
     name: "",
-    password: "",
     email: "",
+    password: "",
+    password2: "" // ✅ TAMBAH INI
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-
-  const { name, password, email } = formData;
-
-  useEffect(() => {
-
-    if(isSuccess) {
-      navigate("/login")
-      dispatch(reset())
-    }
-
-  }, [isSuccess, user, dispatch, navigate])
+  const { name, email, password, password2 } = formData; // ✅ INI YANG DIBUTUHKAN
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((prevState) => ({
+      ...prevState,
       [e.target.name]: e.target.value,
     }));
-  }; 
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const dataToSubmit = {
-      name,
-      email,
-      password,
-    };
+    // Validasi password match
+    if (password !== password2) {
+      alert("Passwords don't match!");
+      return;
+    }
 
-    dispatch(registerUser(dataToSubmit))
+    try {
+      const userData = {
+        name,
+        email, 
+        password,
+      };
+
+      console.log("📤 Register data:", userData);
+
+      const res = await axios.post(
+        "http://localhost:5000/api/users",
+        userData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log("✅ Register success:", res.data);
+      alert("Registration successful!");
+      navigate("/login");
+
+    } catch (error) {
+      console.error("❌ Register error:", error.response?.data || error.message);
+      alert("Registration failed: " + (error.response?.data?.message || error.message));
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center pt-28 px-4">
-      {/* Kata pengantar */}
-      <h1 className="font-semibold font-sans text-3xl text-center mb-3">
-        Time to enter your universe.
-      </h1>
-      <p className="max-w-md text-center text-gray-600 mb-10">
-        That familiar password is your ticket back—your space is exactly as you left it, waiting to welcome you home.
-      </p>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <form onSubmit={handleSubmit} className="w-96 p-6 bg-white rounded-xl shadow-lg space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-5">
+        <input
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          className="w-full border px-3 py-2 rounded"
+          value={name}
+          onChange={handleChange}
+          required
+        />
 
-        {/* Name */}
-        <div>
-          <label className="block mb-1 font-medium">Name</label>
-          <input
-            type="text"
-            name="name"   
-            value={name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          className="w-full border px-3 py-2 rounded"
+          value={email}
+          onChange={handleChange}
+          required
+        />
 
-        {/* Email */}
-        <div>
-          <label className="block mb-1 font-medium">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          className="w-full border px-3 py-2 rounded"
+          value={password}
+          onChange={handleChange}
+          required
+        />
 
-        {/* Password */}
-        <div className="relative">
-          <label className="block mb-1 font-medium">Password</label>
-
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            value={password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-          />
-
-          {/* Toggle icon */}
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-9 text-gray-600 hover:text-black"
-          >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
+        <input
+          type="password"
+          name="password2"
+          placeholder="Confirm Password"
+          className="w-full border px-3 py-2 rounded"
+          value={password2}
+          onChange={handleChange}
+          required
+        />
 
         <button
           type="submit"
-          className="w-full mt-4 py-2 bg-primary text-white rounded-md hover:bg-gray-800"
+          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
         >
           Register
         </button>
+
+        <p className="text-center text-sm">
+          Already have an account?{" "}
+          <a href="/login" className="text-blue-500">
+            Login here
+          </a>
+        </p>
       </form>
     </div>
   );
