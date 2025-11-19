@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // ✅ IMPORT INI
+import axios from "axios";
 
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    password2: "" // ✅ TAMBAH INI
+    password2: "" 
   });
 
-  const { name, email, password, password2 } = formData; // ✅ INI YANG DIBUTUHKAN
+  const { name, email, password, password2 } = formData; 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,7 +23,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validasi password match
+    // validasi password
     if (password !== password2) {
       alert("Passwords don't match!");
       return;
@@ -36,7 +36,7 @@ const Register = () => {
         password,
       };
 
-      console.log("📤 Register data:", userData);
+      console.log(" Register data:", userData);
 
       const res = await axios.post(
         "http://localhost:5000/api/users",
@@ -49,20 +49,21 @@ const Register = () => {
         }
       );
 
-      console.log("✅ Register success:", res.data);
-      alert("Registration successful!");
+      console.log(" Register success:", res.data);
+      alert("Registration success");
       navigate("/login");
 
     } catch (error) {
-      console.error("❌ Register error:", error.response?.data || error.message);
+      console.error("Register error:", error.response?.data || error.message);
       alert("Registration failed: " + (error.response?.data?.message || error.message));
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="w-96 p-6 bg-white rounded-xl shadow-lg space-y-4">
-        <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-2xl font-semibold text-center text-pink-400 font-sans mb-4">Time to make your universe to be real</h2>
+        <p className="text-center font-sans mb-4">its your time for make anything you need for ur need? hehe</p>
 
         <input
           type="text"
@@ -106,7 +107,7 @@ const Register = () => {
 
         <button
           type="submit"
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800"
+          className="w-full bg-pink-400 text-white py-2 rounded hover:bg-pink-600 duration-200"
         >
           Register
         </button>

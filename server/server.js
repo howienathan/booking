@@ -15,35 +15,36 @@ const userRoutes = require("./routes/userRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 
 dotenv.config();
-const app = express();
+
+const app = express();  // ⬅️ INI HARUS DULU BARU BISA app.use()
 const port = process.env.PORT || 5000;
 
-// 🔗 Connect to MongoDB
+// connect db
 connectDB();
 
-// 🔧 Middlewares
+// middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Izinkan akses dari React frontend
+// buat izin akses ke fe
 app.use(
   cors({
-    origin: "http://localhost:3000", 
-    credentials: true, 
+    origin: ["http://localhost:3000", "http://localhost:4000"],
+    credentials: true,
   })
 );
 
-// 🖼️ Static folder untuk akses gambar upload
+// folder statis gambar
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// 🧩 Routes
+// routes
 app.use("/api/products", productRoutes);
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/bookings", bookingRoutes); // ⬅️ BARU DI SINI
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 
-// 🧠 Tes auth route (cek token)
+// cek token
 app.get("/auth", auth, (req, res) => {
   res.json({
     token: req.cookies.jwt,
@@ -51,8 +52,8 @@ app.get("/auth", auth, (req, res) => {
   });
 });
 
-// 🛠️ Error handler (paling akhir)
+// error handler
 app.use(errorHandler);
 
-// 🚀 Jalankan server
+// run server
 app.listen(port, () => console.log(`✅ Server running on port ${port}`));

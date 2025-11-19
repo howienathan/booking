@@ -14,10 +14,11 @@ const CreateProduct = () => {
     name: "",
     price: "",
     desc: "",
+    stock: "",
     productNumber: "",
   });
 
-  const { name, price, desc, productNumber } = formData;
+  const { name, price, desc, stock, productNumber } = formData;
 
   useEffect(() => {
     if (!user) {
@@ -26,8 +27,8 @@ const CreateProduct = () => {
   }, [user, navigate]);
 
   const handleChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
     }));
   };
@@ -36,10 +37,9 @@ const CreateProduct = () => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(selectedFiles);
 
-    const imagePreviews = selectedFiles.map((file) =>
-      URL.createObjectURL(file)
+    setPreviewImages(
+      selectedFiles.map((file) => URL.createObjectURL(file))
     );
-    setPreviewImages(imagePreviews);
   };
 
   const handleSubmit = async (e) => {
@@ -48,46 +48,48 @@ const CreateProduct = () => {
     console.log("🔄 Mulai submit...");
 
     try {
-      // 1. Siapkan productNumbers dengan format YANG BENAR
+      // HANDLE PRODUCT NUMBERS
       let productNumbersArray = [];
-      
-      if (productNumber && productNumber.trim() !== "") {
+
+      if (productNumber.trim() !== "") {
         productNumbersArray = productNumber
           .split(",")
           .map((item) => {
-            const num = parseInt(item.trim());
+            const num = parseInt(item.trim(), 10);
             if (!isNaN(num)) {
               return {
                 number: num,
-                unavaibleDates: []
+                unavailableDates: [],
               };
             }
             return null;
           })
-          .filter(item => item !== null);
+          .filter(Boolean);
       }
 
       console.log("📦 Product Numbers:", productNumbersArray);
 
-      // 2. Siapkan FormData
+      // BUILD FORM DATA
       const dataToSubmit = new FormData();
       dataToSubmit.append("name", name);
-      dataToSubmit.append("price", parseFloat(price));
+      dataToSubmit.append("price", price);
       dataToSubmit.append("desc", desc);
-      // dataToSubmit.append("productNumbers", JSON.stringify(productNumbersArray));
 
-      // buat nambahin files
+      // Stock dikirim apa adanya (string), backend yang convert
+      if (stock.trim() !== "") {
+        dataToSubmit.append("stock", stock);
+      }
+
+      // Images
       files.forEach((file) => {
         dataToSubmit.append("images", file);
       });
 
-      // Debuging
-      console.log("📤 Data yang dikirim:");
+      console.log("Data yang dikirim:");
       for (let [key, value] of dataToSubmit.entries()) {
         console.log(`${key}:`, value);
       }
 
-      // kirim req dengan header sama cookie
       const res = await axios.post(
         "http://localhost:5000/api/products",
         dataToSubmit,
@@ -95,23 +97,23 @@ const CreateProduct = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          withCredentials: true
+          withCredentials: true,
         }
       );
 
-      console.log("✅ Success:", res.data);
-      alert("🎉 Product berhasil ditambahkan!");
+      console.log("Success:", res.data);
+      alert("Product berhasil ditambahkan");
       navigate("/dashboard");
 
     } catch (error) {
-      console.error("kocak Error detail:", {
+      console.error(" ERROR:", {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
       });
-      
-      const errorMessage = error.response?.data?.message || "Gagal membuat product";
-      alert(`ERROR LOL ${errorMessage}`);
+
+      const msg = error.response?.data?.message || "Gagal membuat product";
+      alert(`ERROR: ${msg}`);
     }
   };
 
@@ -123,6 +125,7 @@ const CreateProduct = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="gap-5 grid grid-cols-2">
+
           <div>
             <label className="block mb-1 font-medium">Name</label>
             <input
@@ -130,7 +133,7 @@ const CreateProduct = () => {
               name="name"
               value={name}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-400 rounded-md"
+              className="w-full px-4 py-2 border rounded-md"
               required
             />
           </div>
@@ -142,7 +145,7 @@ const CreateProduct = () => {
               name="price"
               value={price}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-400 rounded-md"
+              className="w-full px-4 py-2 border rounded-md"
               required
             />
           </div>
@@ -153,44 +156,42 @@ const CreateProduct = () => {
               name="desc"
               value={desc}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-400 rounded-md h-28"
+              className="w-full px-4 py-2 border rounded-md h-28"
               required
             />
           </div>
 
-          {/* <div className="col-span-2">
-            <label className="block mb-1 font-medium">Product Numbers</label>
-            <textarea
-              name="productNumber"
-              value={productNumber}
+          <div className="col-span-2">
+            <label className="block mb-1 font-medium">Stock</label>
+            <input
+              type="number"
+              name="stock"
+              value={stock}
               onChange={handleChange}
-              placeholder="Contoh: 101, 102, 103 (opsional)"
-              className="w-full p-4 py-2 border border-gray-400 rounded-md h-20"
+              className="w-full px-4 py-2 border rounded-md"
+              placeholder="(optional)"
             />
-            <p className="text-sm text-gray-500 mt-1">* Kosongkan jika tidak ada</p>
-          </div> */}
+          </div>
 
           <div className="col-span-2">
             <label className="block mb-1 font-medium">Images</label>
             <input
               type="file"
-              name="images"
               multiple
               onChange={handleFileChange}
-              className="block mb-3"
+              className="mb-3"
               required
             />
 
             {previewImages.length > 0 && (
               <div className="grid grid-cols-3 gap-3 mt-2">
-                {previewImages.map((src, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={src}
-                      alt={`Preview ${index}`}
-                      className="w-full h-24 object-cover rounded-md border"
-                    />
-                  </div>
+                {previewImages.map((src, idx) => (
+                  <img
+                    key={idx}
+                    src={src}
+                    alt="preview"
+                    className="w-full h-24 object-cover rounded border"
+                  />
                 ))}
               </div>
             )}
@@ -198,7 +199,7 @@ const CreateProduct = () => {
 
           <button
             type="submit"
-            className="col-span-2 w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition duration-200"
+            className="col-span-2 w-full py-3 bg-black text-white rounded-lg"
           >
             Create Product
           </button>

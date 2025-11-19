@@ -7,8 +7,11 @@ const router = Router();
 //get users
 router.get("/",auth,  getUsers);
 
-//create users
-router.post("/", createUser);
+// create user admin
+router.post("/", createUser)
+
+//create users client
+router.post("/register", createUser);
 // login user
 router.post("/login", loginUser);
 //logout user

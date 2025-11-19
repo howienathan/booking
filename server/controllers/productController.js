@@ -1,83 +1,131 @@
 const Product = require("../models/productModel");
 
-// ✅ GET ALL PRODUCTS
+
+
+// get all
 const getProduct = async (req, res, next) => {
   try {
     const products = await Product.find();
-    res.status(200).json(products);
-  } catch (error) {
-    next(error);
+    return res.status(200).json(products);
+  } catch (err) {
+    return next(err);
   }
 };
 
-// ✅ CREATE PRODUCT (sudah ada)
+// create product from multer
 const createProduct = async (req, res, next) => {
   try {
-    const { name, price, desc } = req.body;
-    
-    console.log("📸 FILES:", req.files);
-    
-    const images = req.files ? req.files.map(file => file.filename) : [];
-    
-    console.log("💾 SAVING IMAGES:", images);
+    // string
+    const { name, price, desc, stock, productNumbers } = req.body;
 
-    const product = await Product.create({
-      name,
-      price: Number(price),
-      desc,
-      img: images
-    });
-
-    res.status(201).json({
-      message: "Product created!",
-      product
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-//  UPDATE PRODUCT
-const updateProduct = async (req, res, next) => {
-  try {
-    let updateData = {
-      name: req.body.name,
-      price: req.body.price,
-      desc: req.body.desc,
-    };
-
-    // up img kalo ada file yg bary
-    if (req.files && req.files.length > 0) {
-      updateData.img = req.files.map(file => file.filename);
+    if (!name || !price || !desc) {
+      return res.status(400).json({ message: "name, price and desc are required" });
     }
 
-    const updated = await Product.findByIdAndUpdate(
-      req.params.id,
-      { $set: updateData },
-      { new: true }
-    );
+    // parse/convert values safely
+    const safePrice = Number(price);
+    if (Number.isNaN(safePrice)) {
+      return res.status(400).json({ message: "price must be a number" });
+    }
 
-    res.status(200).json(updated);
-  } catch (error) {
-    next(error);
+    // stock optional only convert if provided and not empty
+    let safeStock;
+    if (stock !== undefined && stock !== "") {
+      safeStock = Number(stock);
+      if (Number.isNaN(safeStock)) {
+        return res.status(400).json({ message: "stock must be a number" });
+      }
+    } // else leave undefined -> model default will apply
+
+    // images: multer stores files in req.files (since we use array)
+    const images = Array.isArray(req.files) ? req.files.map((f) => f.filename) : [];
+
+    // productNumbers may be sent as JSON string or not present
+    let parsedProductNumbers = [];
+    if (productNumbers) {
+      try {
+        // if it's already JSON string (e.g. client sent JSON.stringify)
+        parsedProductNumbers = typeof productNumbers === "string"
+          ? JSON.parse(productNumbers)
+          : productNumbers;
+        // Normalize to array of {{number, unavailableDates}}
+        parsedProductNumbers = parsedProductNumbers
+          .map((pn) => {
+            if (typeof pn === "object" && pn !== null && pn.number !== undefined) {
+              return { number: Number(pn.number), unavailableDates: pn.unavailableDates || [] };
+            }
+            return null;
+          })
+          .filter(Boolean);
+      } catch (err) {
+        // fallback: try parse comma separated numbers "1,2,3"
+        parsedProductNumbers = productNumbers
+          .split(",")
+          .map((v) => parseInt(v.trim(), 10))
+          .filter((n) => !Number.isNaN(n))
+          .map((n) => ({ number: n, unavailableDates: [] }));
+      }
+    }
+
+    const productData = {
+      name: name.trim(),
+      price: safePrice,
+      desc: desc.trim(),
+      img: images,
+    };
+
+    if (safeStock !== undefined) productData.stock = safeStock;
+    if (parsedProductNumbers.length) productData.productNumbers = parsedProductNumbers;
+
+    const product = await Product.create(productData);
+
+    return res.status(201).json({ message: "Product created!", product });
+  } catch (err) {
+    return next(err);
   }
 };
 
+// UPDATE product
+const updateProduct = async (req, res, next) => {
+  try {
+    const updateData = {};
+    if (req.body.name) updateData.name = req.body.name;
+    if (req.body.price) {
+      const p = Number(req.body.price);
+      if (Number.isNaN(p)) return res.status(400).json({ message: "price must be number" });
+      updateData.price = p;
+    }
+    if (req.body.desc) updateData.desc = req.body.desc;
+    if (req.body.stock !== undefined && req.body.stock !== "") {
+      const s = Number(req.body.stock);
+      if (Number.isNaN(s)) return res.status(400).json({ message: "stock must be number" });
+      updateData.stock = s;
+    }
 
-// ✅ DELETE PRODUCT  
+    if (req.files && req.files.length > 0) {
+      updateData.img = req.files.map((f) => f.filename);
+    }
+
+    const updated = await Product.findByIdAndUpdate(req.params.id, { $set: updateData }, { new: true });
+    return res.status(200).json(updated);
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// DELETE
 const deleteProduct = async (req, res, next) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Product deleted" });
-  } catch (error) {
-    next(error);
+    return res.status(200).json({ message: "Product deleted" });
+  } catch (err) {
+    return next(err);
   }
 };
 
-// ✅ EXPORT SEMUA FUNCTION
 module.exports = {
   getProduct,
-  createProduct, 
+  createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
 };

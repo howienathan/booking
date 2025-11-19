@@ -1,12 +1,9 @@
-const { Router } = require("express");
-const { getBookings, createBooking, updateBooking, deleteBooking } = require("../controllers/bookingController");
-const { auth } = require("../middleware/authMiddleware");
+const express = require("express");
+const router = express.Router();
+const bookingController = require("../controllers/bookingController");
 
-const router = Router(); // pakai const, jangan global
-
-router.get("/",auth, getBookings);     // ambil daftar booking
-router.post("/",auth, createBooking);  // buat booking baru
-router.put("/:id",auth, updateBooking);  // update booking
-router.delete("/:id",auth, deleteBooking);  // DEL booking
+router.post("/", bookingController.createBooking);
+router.get("/", bookingController.getBookings);
+router.patch("/:id/status", bookingController.updateStatus);
 
 module.exports = router;

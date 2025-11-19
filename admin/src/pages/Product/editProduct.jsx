@@ -12,6 +12,7 @@ const EditProduct = () => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [desc, setDesc] = useState("");
+  const [stock, setStock] = useState("");
 
   const [newImages, setNewImages] = useState([]);
 
@@ -21,7 +22,7 @@ const EditProduct = () => {
 
   const fetchProduct = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/products`);
+      const res = await axios.get("http://localhost:5000/api/products");
       const data = res.data.find((p) => p._id === id);
 
       if (!data) {
@@ -34,7 +35,7 @@ const EditProduct = () => {
       setName(data.name);
       setPrice(data.price);
       setDesc(data.desc);
-
+      setStock(data.stock ?? ""); // kalau undefined, jadikan kosong
     } catch (error) {
       console.error("gagal fetching product:", error);
     } finally {
@@ -55,6 +56,11 @@ const EditProduct = () => {
       formData.append("price", price);
       formData.append("desc", desc);
 
+      // === STOCK OPTIONAL ===
+      if (stock !== "" && stock !== null) {
+        formData.append("stock", Number(stock));
+      }
+
       if (newImages.length > 0) {
         newImages.forEach((file) => formData.append("images", file));
       }
@@ -66,15 +72,13 @@ const EditProduct = () => {
 
       alert("Product updated!");
       navigate("/product");
-
     } catch (error) {
-      console.error("gagal edit product:", error);
-      alert("gagal");
+      console.log("gagal edit product:", error.response?.data || error.message);
+      alert(error.response?.data?.message || "gagal");
     }
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
-
   if (!product) return <p className="p-6 text-red-500">Product not found.</p>;
 
   return (
@@ -82,9 +86,7 @@ const EditProduct = () => {
       <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-lg">
         <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
 
-        {/* FORM */}
         <form onSubmit={handleSubmit} encType="multipart/form-data">
-
           <label className="block font-semibold mb-1">Name</label>
           <input
             className="w-full p-2 border rounded mb-4"
@@ -111,8 +113,19 @@ const EditProduct = () => {
             required
           ></textarea>
 
-          {/* OLD IMAGES */}
-          <label className="block font-semibold mb-1">Current Images</label>
+          <div className="col-span-2">
+            <label className="block mb-1 font-medium">Stock (optional)</label>
+            <input
+              type="number"
+              name="stock"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              className="w-full px-4 py-2 border rounded-md"
+              placeholder="(optional)"
+            />
+          </div>
+
+          <label className="block font-semibold mb-1 mt-4">Current Images</label>
           <div className="flex gap-3 mb-4 overflow-x-auto">
             {product.img?.map((img, index) => (
               <img
@@ -124,7 +137,6 @@ const EditProduct = () => {
             ))}
           </div>
 
-          {/* NEW IMAGE UPLOAD */}
           <label className="block font-semibold mb-1">New Images (optional)</label>
           <input
             type="file"
@@ -133,7 +145,6 @@ const EditProduct = () => {
             onChange={handleImageUpload}
           />
 
-          {/* BUTTONS */}
           <div className="flex justify-between mt-4">
             <button
               type="button"
@@ -150,7 +161,6 @@ const EditProduct = () => {
               Save Changes
             </button>
           </div>
-
         </form>
       </div>
     </div>

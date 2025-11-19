@@ -1,74 +1,80 @@
-const Booking = require("../models/bookingModels")
+const Booking = require("../models/bookingModels");
+const Product = require("../models/productModel");
 
-const getBookings = async(req, res, next) => {
-    try { 
- const booking = await Booking.find();
- if(!booking) {
-    res.status(400);
-    throw new Error ("cant get booking");
- }
+exports.createBooking = async (req, res) => {
+  try {
+    const { userName, productId, qty, totalPrice, time } = req.body; // <-- FIX
 
- return res.status(201).json(booking);
-} catch(error) {
-    next(error)
-}
+    // 1. Cari produk
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
 
+    // 2. Pastikan stock valid number
+    let currentStock = Number(product.stock);
+    if (isNaN(currentStock)) currentStock = 0;
+
+    // 3. Cek stok
+    if (currentStock > 0) {
+      if (currentStock < qty) {
+        return res.status(400).json({
+          message: `Insufficient stock. Available stock: ${currentStock}`,
+        });
+      }
+    }
+
+    // 4. Kurangi stok
+    if (currentStock > 0) {
+      product.stock = currentStock - qty;
+      await product.save();
+    }
+
+    // 5. Simpan booking
+    const booking = await Booking.create({
+      userName: userName || "Guest",
+      productId,
+      productName: product.name,
+      qty,
+      totalPrice,
+      bookingTime: time, 
+    });
+
+    return res.status(201).json({
+      message: "Booking successful",
+      booking,
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
 };
 
-//create booking
-const createBooking = async(req, res, next) => {
-   
-try { 
- const booking = await Booking.create(req.body);
- if(!booking) {
-    res.status(400);
-    throw new Error ("cant make booking");
- }
-
- return res.status(201).json(booking);
-} catch(error) {
-    next(error);
-}
+exports.getBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find().sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
-//update booking 
-const updateBooking = async(req, res, next) => {
-    try { 
- const updatedBooking = await Booking.findByIdAndUpdate(req.params.id, {
-    $set: req.body
- }, {
-    new: true
- });
- if(!updatedBooking) {
-    res.status(400);
-    throw new Error ("cant update booking");
- }
- const bookings = await Booking.find();
- return res.status(201).json(bookings);
-} catch(error) {
-    next(error);
-}
+exports.updateStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
 
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json(booking);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
-//delete booking 
-const deleteBooking = async(req, res, next) => {
-    try { 
- const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
- if(!deletedBooking) {
-    res.status(400);
-    throw new Error ("cant delete booking");
- }
-
- return res.status(201).json({ id: req.params.id });
-} catch(error) {
-    next(error);
-}
-
-}
-
-module.exports = {
-    getBookings,
-    createBooking,
-    updateBooking,
-    deleteBooking,
-}

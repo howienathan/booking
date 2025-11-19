@@ -35,16 +35,11 @@ export function Header() {
 
           {/* navbar desktop */}
           <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-foreground hover:text-primary duration-300">
-              Home
-            </Link>
+            {user ? (
+              <>
             <Link to="/product" className="text-foreground hover:text-primary duration-300">
               Product
             </Link>
-
-
-            {user ? (
-              <>
                 <Link
                   to="/products/create"
                   className="text-foreground hover:text-primary duration-300"
@@ -82,7 +77,7 @@ export function Header() {
             )}
           </div>
 
-          {/* TOGGLE MOBILE */}
+          {/* mobile */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden text-foreground"
@@ -91,7 +86,6 @@ export function Header() {
           </button>
         </div>
 
-        {/* MOBILE MENU */}
         {isOpen && (
           <div className="md:hidden border-t border-border">
             <div className="flex flex-col gap-3 pt-4 pb-4">
