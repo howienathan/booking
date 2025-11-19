@@ -70,7 +70,7 @@ const Checkout = () => {
           "http://localhost:5000/api/bookings",
           {
             userName: name || "Guest",
-            time: bookingTime,
+            bookingTime,
             productId: item._id,
             qty: item.qty,
             totalPrice: item.qty * item.price,

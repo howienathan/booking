@@ -2,18 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
+import { Search, Loader2, AlertCircle, ShoppingBag } from 'lucide-react';
 import HeaderSection from "../../../components/header-Section";
+
 
 const Booking = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [toast, setToast] = useState(null); 
-
+  const [toast, setToast] = useState(null);
   const router = useRouter();
 
-  // Proteksi login
   useEffect(() => {
     const user = localStorage.getItem("user");
     if (!user) {
@@ -37,130 +37,162 @@ const Booking = () => {
     }
   };
 
-  // Search
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  // add to cart
-  // kalo product abis
-const handleCheckout = (product) => {
-  if (product.stock !== "" && product.stock != null && Number(product.stock) === 0) {
-    setToast(`${product.name} sudah habis!`);
+
+  const handleCheckout = (product) => {
+    if (product.stock !== "" && product.stock != null && Number(product.stock) === 0) {
+      setToast(`${product.name} sudah habis!`);
+      setTimeout(() => setToast(null), 2500);
+      return;
+    }
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const idx = cart.findIndex((item) => item._id === product._id);
+
+    if (idx !== -1) {
+      cart[idx].qty += 1;
+    } else {
+      cart.push({ ...product, qty: 1 });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    setToast(`${product.name} added to cart!`);
     setTimeout(() => setToast(null), 2500);
-    return;
-  }
+  };
 
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-  const idx = cart.findIndex((item) => item._id === product._id);
-
-  if (idx !== -1) {
-    cart[idx].qty += 1;
-  } else {
-    cart.push({ ...product, qty: 1 });
-  }
-
-  localStorage.setItem("cart", JSON.stringify(cart));
-
-  setToast(`${product.name} added to cart!`);
-  setTimeout(() => setToast(null), 2500);
-};
-
-
-  // Loading screen
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p>Loading products...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Memuat produk...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    
-    <div>
-    <HeaderSection title="Product" subTitle="Lorem ipsum dolor sit amet." />
-      <div>
-      <div className="max-w-5xl pt-32 mx-auto">
-        {toast && (
-          <div className="fixed bottom-5 right-5 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg duration-75 animate-bounce">
-            {toast}
+    <div className="bg-background min-h-screen">
+      <HeaderSection title="Produk" subTitle="Our service is the best for yall and comment us if u want too!!" />
+      
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-5 right-5 z-50 bg-green-600 text-white px-5 py-3 rounded-lg shadow-lg animate-bounce">
+          {toast}
+        </div>
+      )}
+
+      <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6">
+        <div className="mb-12">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-muted-foreground pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Cari produk..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
           </div>
-        )}
-
-         <div className="item-center mb-8">
-          <h1 className='text-4xl text-center font-semibold max-md:text-xl'>All Memoriest About Salon Mimi</h1>
-          <p className="text-center max-md:text-sm mt-4">Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia eveniet esse reiciendis accusantium voluptatum consequatur laboriosam qui voluptates itaque facere.</p>
         </div>
 
-        <div className="max-w-md mx-auto mb-8">
-          <input
-            type="text"
-            placeholder="Search product..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-            <div className="grid grid-cols-1 mx-8 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((product) => {
-            const imageUrl = product.img?.[0]
-              ? `http://localhost:5000/uploads/${product.img[0]}`
-              : null;
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProducts.map((product) => {
+              const imageUrl = product.img?.[0]
+                ? `http://localhost:5000/uploads/${product.img[0]}`
+                : null;
 
-            return (
-              <div
-                key={product._id}
-                className="bg-white my-8 rounded-xl shadow-md overflow-hidden border hover:shadow-lg transition-all flex flex-col"
-              >
-                <div className="h-48 bg-gray-100 flex items-center justify-center">
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <p className="text-gray-400">No Image</p>
-                  )}
-                </div>
+              const isOutOfStock =
+                product.stock !== "" &&
+                product.stock != null &&
+                Number(product.stock) === 0;
 
-                <div className="p-6 flex flex-col grow">
-                  <div className="grow">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm mt-2">{product.desc}</p>
-                    {product.stock !== "" && product.stock != null && (
-                      <p className="text-gray-700 mt-1">Stock: {product.stock}</p>
+              return (
+                <div
+                  key={product._id}
+                  className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col group"
+                >
+                  <div className="h-56 bg-muted flex items-center justify-center overflow-hidden relative">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <ShoppingBag className="w-8 h-8 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Tidak ada gambar</p>
+                      </div>
                     )}
-                    <p className="text-2xl font-bold text-blue-600 mt-4">
-                      Rp {product.price?.toLocaleString()}
-                    </p>
+                    {isOutOfStock && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-semibold text-lg">Habis</span>
+                      </div>
+                    )}
                   </div>
 
-                  
-                  <button
-                    onClick={() => handleCheckout(product)}
-                    className="w-full mt-4 py-2 bg-pink-400 text-white rounded-lg hover:bg-pink-500 transition"
-                  >
-                    Add to Cart
-                  </button>
+                  <div className="p-5 flex flex-col grow">
+                    <div className="grow mb-4">
+                      <h3 className="text-lg font-semibold text-foreground line-clamp-2 mb-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                        {product.desc}
+                      </p>
+
+                      {product.stock !== "" && product.stock != null && (
+                        <div className="flex items-center gap-2 mb-4">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              isOutOfStock ? "bg-red-500" : "bg-green-500"
+                            }`}
+                          />
+                          <p className={`text-xs font-medium ${
+                            isOutOfStock
+                              ? "text-red-600"
+                              : "text-green-600"
+                          }`}>
+                            {isOutOfStock ? "Habis" : `${product.stock} tersedia`}
+                          </p>
+                        </div>
+                      )}
+
+                      <p className="text-2xl font-bold text-primary">
+                        Rp {product.price?.toLocaleString("id-ID")}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => handleCheckout(product)}
+                      disabled={isOutOfStock}
+                      className={`w-full py-3 rounded-lg font-medium transition-all duration-200 text-white bg-pink-400 ${
+                        isOutOfStock
+                          ? "bg-muted text-muted-foreground cursor-not-allowed"
+                          : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
+                      }`}
+                    >
+                      {isOutOfStock ? "Habis" : "Tambah ke Keranjang"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-
-
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-10">
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              No products found
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <AlertCircle className="w-12 h-12 text-muted-foreground mb-4" />
+            <h3 className="text-2xl font-semibold text-foreground mb-2">
+              Produk tidak ditemukan
             </h3>
+            <p className="text-muted-foreground text-center">
+              Coba ubah pencarian Anda atau lihat semua produk kami
+            </p>
           </div>
         )}
-      </div>
       </div>
     </div>
   );

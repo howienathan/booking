@@ -2,6 +2,7 @@ const { type } = require("@testing-library/user-event/dist/cjs/utility/type.js")
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema({
+  userId: {type: mongoose.Schema.Types.ObjectId,  ref: "User", required: true },
   userName: { type: String, required: true },
   productName: { type: String, required: true },
   qty: { type: Number, required: true },
