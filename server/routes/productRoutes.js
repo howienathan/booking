@@ -27,7 +27,7 @@ router.patch("/:id/stock", auth, async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: "Product not found" });
 
-    // jika stock undefined, set default 0
+    // kalo stock undefined, set default 0
     if (product.stock === undefined) product.stock = 0;
 
     // update stock

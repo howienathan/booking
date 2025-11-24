@@ -9,9 +9,46 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
+    const handleWhatsAppConfirm = (order) => {
+      const phone = "6281325747878";
+
+      const text = `Halo kak, saya ingin konfirmasi pesanan saya:
+        Name: ${order.userName}
+        Product: ${order.productName}
+        Quantity: ${order.qty}
+        Waktu Booking: ${order.bookingTime || order.time || "-"}
+
+    Total: Rp ${order.totalPrice?.toLocaleString("id-ID")}`;
+
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank");
+      };
+
+  const cancelOrder = async (id) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    await axios.patch(
+      `http://localhost:5000/api/bookings/${id}/status`,
+      { status: "Cancelled" },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setOrders(prev =>
+      prev.map(order =>
+        order._id === id ? { ...order, status: "Cancelled" } : order
+      )
+    );
+
+  } catch (err) {
+    console.log("Cancel error:", err.response?.data || err);
+  }
+};
+
+
   useEffect(() => {
     const token = localStorage.getItem("token");
-
+      
     if (!token) {
       setErrorMsg("You are not logged in.");
       setLoading(false);
@@ -55,7 +92,7 @@ export default function Page() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6 max-w-md w-full flex items-start gap-4">
-          <AlertCircle className="w-6 h-6 text-destructive flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-6 h-6 text-destructive shrink-0 mt-0.5" />
           <div>
             <h2 className="font-semibold text-destructive mb-1">Error</h2>
             <p className="text-sm text-foreground">{errorMsg}</p>
@@ -175,6 +212,16 @@ export default function Page() {
                     {order.bookingTime || order.time || "-"}
                   </p>
                 </div>
+                <button
+                  onClick = {() => handleWhatsAppConfirm(order)}
+                  className=" w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                >
+                 Confirm from whatsapp
+                </button>
+                <button
+                onClick={() => cancelOrder(order._id)} 
+                className="w-full bg-red-500 text-white font-semibold hover:bg-red-600 rounded-lg ">Cancel</button>
+
               </div>
             </div>
           ))}

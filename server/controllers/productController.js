@@ -35,20 +35,20 @@ const createProduct = async (req, res, next) => {
       if (Number.isNaN(safeStock)) {
         return res.status(400).json({ message: "stock must be a number" });
       }
-    } // else leave undefined -> model default will apply
+    } // else leave undefined model default will apply
 
-    // images: multer stores files in req.files (since we use array)
+    // images: multer stores files in req.files 
     const images = Array.isArray(req.files) ? req.files.map((f) => f.filename) : [];
 
-    // productNumbers may be sent as JSON string or not present
+    // productNumbers mungkin engga berbentuk string
     let parsedProductNumbers = [];
     if (productNumbers) {
       try {
-        // if it's already JSON string (e.g. client sent JSON.stringify)
+        // kalo udah bentuknya json string
         parsedProductNumbers = typeof productNumbers === "string"
           ? JSON.parse(productNumbers)
           : productNumbers;
-        // Normalize to array of {{number, unavailableDates}}
+        // Normalize to array of number: unavaible array
         parsedProductNumbers = parsedProductNumbers
           .map((pn) => {
             if (typeof pn === "object" && pn !== null && pn.number !== undefined) {
@@ -58,7 +58,7 @@ const createProduct = async (req, res, next) => {
           })
           .filter(Boolean);
       } catch (err) {
-        // fallback: try parse comma separated numbers "1,2,3"
+        // fallback try num kalo ada koma nya 1,2,3
         parsedProductNumbers = productNumbers
           .split(",")
           .map((v) => parseInt(v.trim(), 10))
@@ -85,7 +85,7 @@ const createProduct = async (req, res, next) => {
   }
 };
 
-// UPDATE product
+// update product
 const updateProduct = async (req, res, next) => {
   try {
     const updateData = {};
@@ -113,7 +113,7 @@ const updateProduct = async (req, res, next) => {
   }
 };
 
-// DELETE
+// delete product
 const deleteProduct = async (req, res, next) => {
   try {
     await Product.findByIdAndDelete(req.params.id);

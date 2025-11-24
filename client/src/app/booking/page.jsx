@@ -25,6 +25,7 @@ const Booking = () => {
     fetchProducts();
   }, []);
 
+  // fetching product dari product page be
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -37,10 +38,12 @@ const Booking = () => {
     }
   };
 
+  // filter product untuk search
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // handle untuk checkout product kalo stock nya abis muncul alert sudah abis
   const handleCheckout = (product) => {
     if (product.stock !== "" && product.stock != null && Number(product.stock) === 0) {
       setToast(`${product.name} sudah habis!`);
@@ -156,7 +159,7 @@ const Booking = () => {
                               ? "text-red-600"
                               : "text-green-600"
                           }`}>
-                            {isOutOfStock ? "Habis" : `${product.stock} tersedia`}
+                            {isOutOfStock ? "Habis" : `${product.stock} layanan/product`}
                           </p>
                         </div>
                       )}
@@ -171,7 +174,7 @@ const Booking = () => {
                       disabled={isOutOfStock}
                       className={`w-full py-3 rounded-lg font-medium transition-all duration-200 text-white bg-pink-400 ${
                         isOutOfStock
-                          ? "bg-muted text-muted-foreground cursor-not-allowed"
+                          ? "bg-muted text-muted-foreground bg-pink-900 cursor-not-allowed"
                           : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-95"
                       }`}
                     >

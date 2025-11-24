@@ -24,12 +24,14 @@ const CreateProduct = () => {
 
   const { name, price, desc, stock, productNumber } = formData;
 
+  // handle untuk jika admin belum login akan di arahkan ke login page 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
 
+  // fungsi untuk change data
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -38,6 +40,7 @@ const CreateProduct = () => {
     setError("");
   };
 
+  // fungsi untuk handle file change
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(selectedFiles);
@@ -47,13 +50,14 @@ const CreateProduct = () => {
     );
   };
 
+  // handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // <CHANGE> Validate form before submission
+      // change validasi sebelum submit kalo belom ada image nya
       if (!name.trim() || !price || !desc.trim() || files.length === 0) {
         setError("Please fill in all required fields and add at least one image");
         setIsLoading(false);
@@ -91,6 +95,7 @@ const CreateProduct = () => {
         dataToSubmit.append("images", file);
       });
 
+      // response tunggu axios post untuk data sumbit dari product
       const res = await axios.post(
         "http://localhost:5000/api/products",
         dataToSubmit,
@@ -157,7 +162,7 @@ const CreateProduct = () => {
                     name="name"
                     value={name}
                     onChange={handleChange}
-                    placeholder="e.g., Premium Leather Backpack"
+                    placeholder="Enter Your Product Name"
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
                     required
                   />

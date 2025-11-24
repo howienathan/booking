@@ -9,7 +9,7 @@ const raleway = Raleway({
 });
 
 export const metadata = {
-  title: "Home",
+  title: "Salon Mimi",
   description: "Online Booking Salon",
 };
 

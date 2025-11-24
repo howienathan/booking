@@ -1,4 +1,3 @@
-// middleware/upload.js
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -18,6 +17,7 @@ const storage = multer.diskStorage({
   },
 });
 
+// filter image sesuai sop
 const fileFilter = (req, file, cb) => {
   const allowed = /jpeg|jpg|png|webp/;
   const ext = path.extname(file.originalname).toLowerCase();

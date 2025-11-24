@@ -13,15 +13,15 @@ export const metadata = {
 const AboutPage = () => {
   return (
     <div>
-        <HeaderSection title="About Us" subTitle="Lorem ipsum dolor sit amet."/>
+        <HeaderSection title="About Us" subTitle="The place that explain everything about us."/>
         <div className="max-w-screen-xl mx-auto py-20">
             <div className="grid md:grid-cols-2 gap-8 ">
                 <Image src="/mimosa.png" alt="about-image" width={650} height={579} />
                 <div>
                     <h1 className="text-5xl font-semibold text-gray-900 mb-4">
-                        Who We Are 
+                        Salon Mimi: Your Sanctuary For Your Radiant Skin
                     </h1>
-                    <p className="text-gray-700 py-5">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facilis eum optio hic a tenetur ab molestias laboriosam eos dolorem vel!</p>
+                    <p className="text-gray-700 py-5">Simply come in when your skin needs care, and let us enhance your natural glow.</p>
                         <ul className="list-item space-y-6 pt-8">
                             <li className="flex gap-5">
                                 <div className="flex-none mt-1">
@@ -29,7 +29,7 @@ const AboutPage = () => {
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="text-lg font-semibold mb-1">vission :</h4>
-                                    <p className="text-gray-600">Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur, aperiam. Sit sapiente ex alias laborum?</p>
+                                    <p className="text-gray-600">To be the premier sanctuary where every individual discovers and embraces their most radiant, confident self.</p>
                                 </div>
                             </li>
                             <li className="flex gap-5">
@@ -38,22 +38,21 @@ const AboutPage = () => {
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="text-lg font-semibold mb-1">Mission :</h4>
-                                    <p className="text-gray-600">Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur, aperiam. Sit sapiente ex alias laborum?</p>
+                                    <p className="text-gray-600">To provide personalized, results-oriented facial treatments in a serene and welcoming environment. We are dedicated to enhancing our clients natural beauty by delivering expert care precisely when their skin needs it most, leaving them with a healthy, glowing complexion.</p>
                                 </div>
                             </li>
                         </ul>
                 </div>
             </div>
             <div className="py-[4rem]">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 justify-center">
-                 <Image src="/jake.jpg" alt="about-image" width={450} height={279} className="rounded-md" />
-                 <Image src="/jake.jpg" alt="about-image" width={450} height={279} className="rounded-md" />
-                 <Image src="/jake.jpg" alt="about-image" width={450} height={279} className="rounded-md" />
+                <div className="flex justify-center">
+                 <Image src="/isi.jpg" alt="about-image" width={900} height={200} className="rounded-md" />
                 </div>
                
-                    <h1 className="text-2xl flex justify-center font-semibold py-6">Lorem ipsum dolor sit.</h1>
-                    <p className="text-center">Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempora quidem magnam dicta minima dolores porro repudiandae hic ratione vero asperiores? Earum sunt explicabo sit voluptate officia ex ea. Nihil fuga ad sint eius doloribus aliquid.</p>
-    
+                    <h1 className="text-2xl flex justify-center font-semibold py-6">Who We are?</h1>
+                    <p className="text-center">At Salon Mimi, we are more than just a skincare clinic; we are your dedicated partner in achieving and maintaining a naturally beautiful, glowing complexion. We understand that your skin has unique needs and moments when it calls for extra care and attention.
+                                        Our mission is to provide a serene and welcoming retreat where you can escape the daily grind and invest in your well-being. We specialize in personalized facial treatments designed to rejuvenate, refresh, and enhance your skins natural radiance. Our expert therapists are committed to using their skills to provide you with the perfect treatment, leaving your face looking and feeling perfectly pampered.
+                                        Walk into Salon Mimi whenever you feel your skin needs us. Let us help you reveal your most confident, luminous self.</p>
             </div>
             <div className="py-9">
                 <h1 className="py-10 font-semibold text-3xl flex justify-center">Come visit us while u can</h1>

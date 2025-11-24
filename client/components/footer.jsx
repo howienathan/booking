@@ -11,7 +11,7 @@ const Footer = () => {
                         <Image src="/logo.png" width={128} height={49} alt="logo" />
                         </Link>
                         <p className="text-gray-400">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas autem explicabo itaque possimus ut blanditiis illo! Quas voluptatem nobis laudantium?
+                           This entire website was crafted with copious amounts of coffee, late-night inspiration, and a genuine love for the craft. Thank you for being here.  
                         </p>
                     </div>
                     <div>

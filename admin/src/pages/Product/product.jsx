@@ -9,9 +9,12 @@ const Product = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
+  // effect to fetch product
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // fetching product dari product page
 
   const fetchProducts = async () => {
     try {
@@ -25,6 +28,7 @@ const Product = () => {
     }
   };
 
+  // fungsi untuk delete product
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this product?");
     if (!confirmDelete) return;
@@ -41,6 +45,7 @@ const Product = () => {
         withCredentials: true,
       });
 
+      // alert untuk berhasil atau gagalnya 
       alert("Product deleted successfully!");
       fetchProducts();
     } catch (error) {
@@ -49,9 +54,12 @@ const Product = () => {
     }
   };
 
+  // fungsi untuk edit product yang akan di arahkan ke edit product
   const handleEdit = (id) => {
     navigate(`/products/edit/${id}`);
   };
+
+  // filter product search
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())

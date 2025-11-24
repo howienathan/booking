@@ -24,6 +24,7 @@ const EditProduct = () => {
     fetchProduct();
   }, []);
 
+  // fetch product from product page
   const fetchProduct = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/products");
@@ -46,7 +47,7 @@ const EditProduct = () => {
       setLoading(false);
     }
   };
-
+  // untuk mengganti image(opsional)
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
     setNewImages([...newImages, ...files]);
@@ -59,12 +60,12 @@ const EditProduct = () => {
       reader.readAsDataURL(file);
     });
   };
-
+// remove image dari edit
   const removeNewImage = (index) => {
     setNewImages((prev) => prev.filter((_, i) => i !== index));
     setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
   };
-
+// submit kalo dah selesai edit product
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -77,7 +78,7 @@ const EditProduct = () => {
         setSubmitting(false);
         return;
       }
-
+// output dari edit
       let formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
@@ -123,10 +124,10 @@ const EditProduct = () => {
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-lg font-semibold text-slate-900 mb-2">Product not found</h2>
           <button
-            onClick={() => navigate("/products")}
+            onClick={() => navigate("/product")}
             className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            Back to Products
+            Back to Product
           </button>
         </div>
       </div>
@@ -137,7 +138,7 @@ const EditProduct = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         <button
-          onClick={() => navigate("/products")}
+          onClick={() => navigate("/product")}
           className="flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-8 transition"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -230,7 +231,7 @@ const EditProduct = () => {
               </div>
             </div>
 
-            {/* Current Images Section */}
+           
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-slate-900 pb-4 border-b border-slate-200">Current Images</h2>
               {product?.img && product.img.length > 0 ? (
@@ -311,6 +312,7 @@ const EditProduct = () => {
                 disabled={submitting || success}
                 className="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-slate-400 transition flex items-center justify-center gap-2"
               >
+              {/* load submit */}
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />

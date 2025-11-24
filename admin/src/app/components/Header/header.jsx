@@ -12,6 +12,8 @@ export function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const { user } = useSelector((state) => state.auth)
 
+
+// handle untuk logout
   const handleLogout = async () => {
     localStorage.removeItem("token")
     navigate("/login")
@@ -26,14 +28,14 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
 
-          {/* logo onClick ke home */}
+         
           <div className="flex-shrink-0">
             <Link to="/" className="text-2xl font-bold text-primary">
-              Logo
+              Admin Dashboard
             </Link>
           </div>
 
-          {/* navbar desktop */}
+          {/* Link to dashboard */}
           <div className="hidden md:flex items-center gap-8">
             {user ? (
               <>
@@ -47,7 +49,7 @@ export function Header() {
                   Create Product
                 </Link>
                 <Link
-                  to="/dashboard"
+                  to="/"
                   className="text-foreground hover:text-primary duration-300"
                 >
                   Dashboard
@@ -77,7 +79,7 @@ export function Header() {
             )}
           </div>
 
-          {/* mobile */}
+            {/* Handle/nav for mobile */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden text-foreground"
@@ -95,7 +97,7 @@ export function Header() {
                 onClick={() => setIsOpen(false)}
                 className="px-2 py-2 text-foreground hover:text-primary"
               >
-                Home
+                Dashboard
               </Link>
 
               {user ? (
@@ -106,6 +108,13 @@ export function Header() {
                     className="px-2 py-2 text-foreground hover:text-primary"
                   >
                     Create Product
+                  </Link>
+                  <Link
+                    to="/product"
+                    onClick={() => setIsOpen(false)}
+                    className="px-2 py-2 text-foreground hover:text-primary"
+                  >
+                    Product
                   </Link>
 
                   <button

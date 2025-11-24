@@ -7,7 +7,6 @@ import { ArrowRight } from 'lucide-react';
 export default function Hero() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <Image
           src="/isi.jpg"
@@ -17,10 +16,9 @@ export default function Hero() {
           className="object-cover object-center"
           quality={75}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70"></div>
+        <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/50 to-black/70"></div>
       </div>
 
-      {/* Content Container */}
       <div className="relative flex flex-col justify-center items-center min-h-screen px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl text-center space-y-8">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight text-balance">
@@ -28,7 +26,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-100 leading-relaxed max-w-xl mx-auto text-balance">
-            Secure your seat and order ahead. Were ready to serve you with the finest experience every time we open our doors.
+           go order ahead. Were ready to serve you with the finest experience every time we open our doors.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -51,7 +49,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
         <div className="flex flex-col items-center gap-2 animate-bounce">
           <p className="text-white text-sm font-medium">Scroll to explore</p>

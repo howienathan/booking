@@ -8,43 +8,72 @@ import axios from "axios";
 const Checkout = () => {
   const [cart, setCart] = useState([]);
   const [name, setName] = useState("");
+  const [bookingTime, setBookingTime] = useState("");
+  const [timeCounts, setTimeCounts] = useState({});
   const router = useRouter();
 
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) setCart(JSON.parse(stored));
-  }, []);
+  // Ambil cart
+useEffect(() => {
+  const loadCounts = async () => {
+    const res = await axios.get("http://localhost:5000/api/bookings/time-count");
+    setTimeCounts(res.data);
+  };
 
-  const [bookingTime, setBookingTime] = useState("")
+  loadCounts();
+  const interval = setInterval(loadCounts, 5000);
 
+  return () => clearInterval(interval);
+}, []);
+
+
+useEffect(() => {
+  const stored = localStorage.getItem("cart");
+  if (stored) {
+    setCart(JSON.parse(stored));
+  }
+}, []);
+
+
+
+  // Generate waktu booking
+  const generateTimes = () => {
+    const times = [];
+    for (let h = 9; h <= 18; h++) {
+      const hh = h.toString().padStart(2, "0");
+      times.push(`${hh}:00`);
+      times.push(`${hh}:40`);
+    }
+    return times;
+  };
+
+  const timeSlots = generateTimes();
+
+  // Update qty
   const updateQty = (id, newQty) => {
-  const item = cart.find((p) => p._id === id);
-  if (!item) return;
+    const item = cart.find((p) => p._id === id);
+    if (!item) return;
 
-  // Kalau qty < 1 → hapus item
-  if (newQty < 1) {
-    const filtered = cart.filter((p) => p._id !== id);
-    setCart(filtered);
-    localStorage.setItem("cart", JSON.stringify(filtered));
-    return;
-  }
+    if (newQty < 1) {
+      const filtered = cart.filter((p) => p._id !== id);
+      setCart(filtered);
+      localStorage.setItem("cart", JSON.stringify(filtered));
+      return;
+    }
 
-  // Cek stok
-  if (item.stock !== "" && item.stock != null && newQty > item.stock) {
-    alert("Tidak boleh melebihi stok!");
-    return;
-  }
+    if (item.stock !== "" && item.stock != null && newQty > item.stock) {
+      alert("Tidak boleh melebihi stok!");
+      return;
+    }
 
-  // Update qty normal
-  const updated = cart.map((p) =>
-    p._id === id ? { ...p, qty: newQty } : p
-  );
+    const updated = cart.map((p) =>
+      p._id === id ? { ...p, qty: newQty } : p
+    );
 
-  setCart(updated);
-  localStorage.setItem("cart", JSON.stringify(updated));
-};
+    setCart(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
+  };
 
-
+  // Cancel cart
   const cancelOrder = () => {
     localStorage.removeItem("cart");
     setCart([]);
@@ -56,13 +85,25 @@ const Checkout = () => {
     0
   );
 
+  // Confirm booking
   const confirmBooking = async () => {
     try {
       const token = localStorage.getItem("token");
 
+      if (!bookingTime) {
+        alert("Pilih waktu dulu!");
+        return;
+      }
+
+      // Cek slot penuh
+      if (timeCounts[bookingTime] >= 3) {
+        alert("Slot sudah penuh, pilih waktu lain.");
+        return;
+      }
+
       for (const item of cart) {
         if (item.qty > item.stock) {
-          alert(`Stock for ${item.name} tidak cukup!`);
+          alert(`Stock untuk ${item.name} tidak cukup!`);
           return;
         }
 
@@ -76,19 +117,15 @@ const Checkout = () => {
             totalPrice: item.qty * item.price,
           },
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
       }
-      console.log("bookingtime state:", bookingTime);
 
       localStorage.removeItem("cart");
       router.push("/");
 
     } catch (err) {
-      console.log("BOOKING ERROR:", err.response?.data || err);
       alert(err.response?.data?.message || "Error booking");
     }
   };
@@ -120,9 +157,7 @@ const Checkout = () => {
 
                 <p className="text-lg font-bold text-blue-600 mt-2">
                   Rp {item.price.toLocaleString()}
-                </p>
-
-                {/* tambah dan kurang produk */}
+                  </p>
                 <div className="flex items-center gap-3 mt-3">
                   <button
                     onClick={() => updateQty(item._id, item.qty - 1)}
@@ -140,16 +175,15 @@ const Checkout = () => {
                     +
                   </button>
 
-                  <p className="text-sm text-gray-400 ml-2">
-                    Stock: {item.stock}
-                  </p>
+                  <p className="text-sm text-gray-400 ml-2">Stock: {item.stock}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-      <div>
+        {/* Name */}
+        <div>
           <label className="block mb-3 text-sm font-medium">Name</label>
           <input
             type="text"
@@ -159,18 +193,31 @@ const Checkout = () => {
           />
         </div>
 
-        <div>
-          <label className="block mb-3 text-sm font-medium">time</label>
-        <input
-          type="time"
-          onChange={(e) => setBookingTime(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
+        {/* Time */}
+        <div className="mt-4">
+          <label className="block mb-3 text-sm font-medium">Time</label>
 
+          <select
+            className="w-full p-2 border rounded"
+            onChange={(e) => setBookingTime(e.target.value)}
+            required
+          >
+            <option value="">-- Pilih Waktu --</option>
+
+            {timeSlots.map((time) => {
+              const count = timeCounts[time] || 0;
+              const disabled = count >= 3;
+
+              return (
+                <option key={time} value={time} disabled={disabled}>
+                  {time} {disabled ? "(Penuh)" : ""}
+                </option>
+              );
+            })}
+          </select>
         </div>
 
-        <div className="text-right text-xl font-bold mb-5">
+        <div className="text-right text-xl font-bold my-5">
           Total: Rp {totalPrice.toLocaleString()}
         </div>
 

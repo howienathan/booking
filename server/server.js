@@ -41,7 +41,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // routes
 app.use("/api/products", productRoutes);
-app.use("/api/bookings", bookingRoutes); // ⬅️ BARU DI SINI
+app.use("/api/bookings", bookingRoutes); 
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
 

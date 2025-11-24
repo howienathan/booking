@@ -2,13 +2,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Loader2, AlertCircle, CheckCircle2, Clock, XCircle, Eye } from 'lucide-react';
+import  * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  
   useEffect(() => {
+    // untuk fetching Booking
     const fetchBookings = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -31,6 +35,7 @@ const Dashboard = () => {
     fetchBookings();
   }, []);
 
+  // untuk update status booking dari be ke fe
   const updateStatus = async (id, status) => {
     try {
       await axios.patch(`http://localhost:5000/api/bookings/${id}/status`, {
@@ -45,6 +50,32 @@ const Dashboard = () => {
     }
   };
 
+    // fitur export excel dari data be ke excel 
+    const exportToExcel = () => {
+    const data = bookings.map((b, index) => ({
+      No: index + 1,
+      Product: b.productName,
+      Customer: b.userName,
+      Qty: b.qty,
+      TotalPrice: b.totalPrice,
+      Date: new Date(b.createdAt).toLocaleDateString("id-ID"),
+      Time: b.bookingTime || "-",
+      Status: b.status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, "bookings.xlsx");
+  };
+
+  // setting status dari dashboard yang akan keluar di order 
   const stats = {
     total: bookings.length,
     done: bookings.filter((b) => b.status === "Done").length,
@@ -61,19 +92,6 @@ const Dashboard = () => {
     return styles[status] || "bg-muted text-foreground border-border";
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "Done":
-        return <CheckCircle2 className="w-4 h-4" />;
-      case "In Progress":
-        return <Clock className="w-4 h-4" />;
-      case "Cancelled":
-        return <XCircle className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
-
   if (error) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -87,7 +105,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <div className="border-b border-border bg-card">
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Bookings Dashboard</h1>
@@ -95,7 +112,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Main content */}
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         
         {!loading && (
@@ -119,10 +135,17 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Table section */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={exportToExcel}
+            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+          >
+            Export to Excel
+          </button>
+        </div>
+
         <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
-          
-          {/* Loading state */}
+
           {loading && (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
@@ -130,7 +153,7 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Empty state */}
+            {/* tanda kalo booking gada */}
           {!loading && bookings.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16">
               <Eye className="w-8 h-8 text-muted-foreground mb-3 opacity-50" />
@@ -139,7 +162,7 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Table */}
+          {/* tabel */}
           {!loading && bookings.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full">

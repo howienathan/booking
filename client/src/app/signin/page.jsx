@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SigninPage() {
   const router = useRouter();
@@ -42,8 +43,8 @@ export default function SigninPage() {
       >
       <div className="pb-8">
         <h2 className="text-2xl font-bold text-center mb-6">Time to enter your universe.</h2>
-        <p className="text-center text-lg">That familiar password is your ticket back—your space is exactly as you left it, waiting to welcome you home.</p>
-</div>
+        <p className="text-center text-lg">That familiar password is your ticket back your space is exactly as you left it, waiting to welcome you home.</p>
+      </div>
         {error && (
           <p className="bg-red-100 text-red-600 p-2 rounded mb-4 text-sm">{error}</p>
         )}
@@ -63,7 +64,6 @@ export default function SigninPage() {
           className="w-full p-2 border rounded"
           onChange={handleChange}
         />
-
         <button
           type="submit"
           className="w-full bg-pink-400 text-white p-2 rounded mt-6 hover:bg-pink-600 duration-200"
