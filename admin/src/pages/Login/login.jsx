@@ -27,20 +27,20 @@ const Login = () => {
     localStorage.setItem("token", res.data.token);
 
     alert("Login berhasil!");
-    navigate("/dashboard");
+    navigate("/");
   } catch (err) {
     alert("Email atau password salah!");
   }
 };
 
 useEffect(() => {
-  if (token) navigate("/dashboard");
+  if (token) navigate("/");
 }, [token]);
 
   useEffect(() => {
     console.log("token :", token)
     if (token) {
-      navigate("/dashboard")
+      navigate("/")
     }
   });
 

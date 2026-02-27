@@ -34,7 +34,7 @@ exports.createBooking = async (req, res) => {
       status: { $in: ["In Progress"] }
      });
 
-    if (count >= 3) {
+    if (count >= 2) {
       return res.status(400).json({
         message: `Slot ${bookingTime} sudah penuh!`,
       });
@@ -110,7 +110,7 @@ exports.getBookings = async (req, res) => {
 
       } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error WKAKWOAKWA" });
       }
     };
 

@@ -18,7 +18,6 @@ export default function Hero() {
         />
         <div className="absolute inset-0 bg-linear-to-b from-black/60 via-black/50 to-black/70"></div>
       </div>
-
       <div className="relative flex flex-col justify-center items-center min-h-screen px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl text-center space-y-8">
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight text-balance">
