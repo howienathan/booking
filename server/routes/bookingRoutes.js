@@ -12,6 +12,9 @@ router.get("/", bookingController.getBookings);
 router.patch("/:id/status", bookingController.updateStatus);
 router.get("/my-orders", auth, bookingController.getMyOrders);
 
+// allow admin to wipe all bookings
+router.delete("/", auth, bookingController.deleteAllBookings);
+
 router.get("/time-count", async (req, res) => {
   try {
     const bookings = await Booking.find({

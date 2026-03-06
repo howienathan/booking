@@ -120,6 +120,14 @@ useEffect(() => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
+        await axios.post(
+          "http://localhost:5000/api/users",
+          {
+            name: name || "Guest",
+          
+          }
+        )
       }
 
       localStorage.removeItem("cart");

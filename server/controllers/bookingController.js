@@ -125,3 +125,26 @@ exports.getMyOrders = async (req, res) => {
     return res.status(500).json({ message: "Failed to load orders" });
   }
 };
+
+// delete all bookings (admin)
+exports.deleteAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find();
+
+    // restore stock for non-cancelled bookings
+    for (const b of bookings) {
+      if (b.status !== "Cancelled") {
+        const product = await Product.findById(b.productId);
+        if (product) {
+          product.stock = Number(product.stock) + Number(b.qty);
+          await product.save();
+        }
+      }
+    }
+
+    await Booking.deleteMany({});
+    return res.json({ message: "All bookings deleted" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to delete bookings" });
+  }
+};

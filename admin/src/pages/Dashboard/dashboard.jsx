@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Loader2, AlertCircle, CheckCircle2, Clock, XCircle, Eye } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Clock, XCircle, Eye, Trash2, Download } from 'lucide-react';
 import  * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   
   useEffect(() => {
@@ -75,6 +76,20 @@ const Dashboard = () => {
     saveAs(blob, "bookings.xlsx");
   };
 
+  // delete all bookings
+  const deleteAllBookings = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete("http://localhost:5000/api/bookings", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBookings([]);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.log("DELETE ALL ERROR:", err.response?.data || err);
+    }
+  };
+
   // setting status dari dashboard yang akan keluar di order 
   const stats = {
     total: bookings.length,
@@ -116,33 +131,69 @@ const Dashboard = () => {
         
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
+            <div className="bg-card border border-border shadow-md rounded-lg p-6 hover:scale-105 transition-transform">
               <p className="text-sm font-medium text-muted-foreground mb-2">Total Bookings</p>
               <p className="text-3xl font-bold text-foreground">{stats.total}</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
+            <div className="bg-card border border-border shadow-md rounded-lg p-6 hover:scale-105 transition-transform">
               <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">Completed</p>
               <p className="text-3xl font-bold text-foreground">{stats.done}</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
+            <div className="bg-card border border-border shadow-md rounded-lg p-6 hover:scale-105 transition-transform">
               <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">In Progress</p>
               <p className="text-3xl font-bold text-foreground">{stats.inProgress}</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
+            <div className="bg-card border border-border shadow-md rounded-lg p-6 hover:scale-105 transition-transform">
               <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Cancelled</p>
               <p className="text-3xl font-bold text-foreground">{stats.cancelled}</p>
             </div>
           </div>
         )}
 
-        <div className="flex justify-end mb-4">
+        <div className="flex flex-wrap justify-end gap-2 mb-4">
           <button
             onClick={exportToExcel}
-            className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90"
+            className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50"
           >
+            <Download className="w-4 h-4 mr-2" />
             Export to Excel
           </button>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            disabled={loading || bookings.length === 0}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 ml-2 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-300"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete All
+          </button>
         </div>
+
+        {/* delete confirmation modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowDeleteModal(false)}></div>
+            <div className="bg-card p-6 rounded-lg shadow-lg max-w-sm z-10">
+              <h2 className="text-lg font-medium text-foreground mb-4">Confirm Deletion</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                This will permanently remove all bookings and restore product stock. Continue?
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="px-4 py-2 bg-muted text-foreground rounded-md hover:bg-muted/80"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={deleteAllBookings}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Yes, delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
 
@@ -167,7 +218,7 @@ const Dashboard = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-border bg-muted/50">
+                  <tr className="sticky top-0 bg-muted/50 border-b border-border">
                     <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Product</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Customer</th>
                     <th className="px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Qty</th>
@@ -179,7 +230,7 @@ const Dashboard = () => {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {bookings.map((b, i) => (
-                    <tr key={i} className="hover:bg-muted/50 transition-colors">
+                    <tr key={i} className="hover:bg-muted/50 transition-colors odd:bg-background even:bg-muted/10">
                       <td className="px-6 py-4">
                         <p className="font-medium text-foreground">{b.productName}</p>
                       </td>
