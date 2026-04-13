@@ -56,7 +56,7 @@ const Card = ({
                 <IoStar key={i} className={`h-4 w-4 ${filled ? 'text-yellow-400' : 'text-gray-300'}`} />
               ))}
             </div>
-            <div className="text-sm text-gray-500">{rating.toFixed(1)} · {reviews} reviews</div>
+            <div className="text-sm text-gray-500">{rating.toFixed(1)} Rates</div>
           </div>
 
           <div className="flex items-center space-x-2">

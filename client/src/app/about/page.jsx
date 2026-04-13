@@ -26,7 +26,7 @@ const AboutPage = () => {
                     <p className="text-xl font-light text-pink-600 tracking-wide">Your Sanctuary For Your Radiant Skin</p>
                     <p className="text-lg text-gray-700 leading-relaxed font-light">Simply come in when your skin needs care, and let us enhance your natural glow.</p>
                     <div className="space-y-4 pt-4">
-                        <div className="group p-6 rounded-xl border-2 border-gray-100 hover:border-pink-300 hover:bg-pink-50 transition duration-300 cursor-pointer">
+                        <div className="group p-6 rounded-xl border-2 border-gray-100 hover:border-blue-300 hover:bg-blue-50 transition duration-300 cursor-pointer">
                             <div className="flex gap-4 items-start">
                                 <div className="flex-shrink-0 rounded-full bg-blue-100 p-3 group-hover:bg-blue-200 transition">
                                     <IoEyeOutline className="w-6 h-6 text-blue-600"/>
@@ -51,7 +51,7 @@ const AboutPage = () => {
                     </div>
                 </div>
             </section>
-            <section className="bg-gradient-to-r from-gray-50 to-pink-50 rounded-3xl p-12 md:p-16 mb-20">
+            <section className="bg-linear-to-r from-gray-50 to-pink-50 rounded-3xl p-12 md:p-16 mb-20">
                 <div className="max-w-3xl mx-auto space-y-8">
                     <figure className="rounded-2xl overflow-hidden shadow-xl">
                       <Image src="/isi.jpg" alt="Salon Mimi team and facilities" width={900} height={400} className="w-full h-auto object-cover" />

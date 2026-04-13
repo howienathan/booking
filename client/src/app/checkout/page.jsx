@@ -121,13 +121,7 @@ useEffect(() => {
           }
         );
 
-        await axios.post(
-          "http://localhost:5000/api/users",
-          {
-            name: name || "Guest",
-          
-          }
-        )
+      
       }
 
       localStorage.removeItem("cart");

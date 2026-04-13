@@ -113,7 +113,7 @@ const CreateProduct = () => {
       setPreviewImages([]);
       
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/product");
       }, 1500);
 
     } catch (error) {
