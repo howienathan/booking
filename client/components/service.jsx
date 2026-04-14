@@ -1,0 +1,92 @@
+export const services = [
+  {
+    id: 1,
+    title: "Smoothing",
+    description: "Smoothing nya rapi banget bagus suka deh jadi pengen ke salon mimi lagi hehhe yuk rapatkan ke salon mimi secepatnya",
+    price: 210000,
+    image: "/images/smoothing.jpg",
+    href: "/booking?service=smoothing",
+    rating: 4.8,
+    reviews: 34,
+    googleReviews: [
+      {
+        name: "Rina Agustina",
+        avatar: "R",
+        text: "Hasilnya bagus banget, rambut jadi lurus dan halus. Mbak-mbaknya ramah dan profesional!",
+        stars: 5,
+      },
+      {
+        name: "Dewi Lestari",
+        avatar: "D",
+        text: "Smoothing di sini hasilnya tahan lama, sudah 3 bulan masih bagus. Puas banget!",
+        stars: 5,
+      },
+      {
+        name: "Sinta Maharani",
+        avatar: "S",
+        text: "Harga worth it sama hasilnya, recommended buat yang mau smoothing di Salatiga.",
+        stars: 4,
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: "Creambath",
+    description: "Creambath nya enak banget rambut jadi lembut dan wangi, pelayanannya juga ramah dan nyaman bikin betah",
+    price: 85000,
+    image: "/images/creambath.jpg",
+    href: "/booking?service=creambath",
+    rating: 4.5,
+    reviews: 21,
+    googleReviews: [
+      {
+        name: "Ayu Putri",
+        avatar: "A",
+        text: "Creambath nya enak banget, kepala jadi seger dan rambut lembut. Bakal balik lagi!",
+        stars: 5,
+      },
+      {
+        name: "Fitri Handayani",
+        avatar: "F",
+        text: "Pijatannya mantap, rambut langsung terasa beda setelah creambath di sini.",
+        stars: 4,
+      },
+      {
+        name: "Novia Rahmawati",
+        avatar: "N",
+        text: "Tempatnya bersih dan nyaman, harga terjangkau. Cocok buat perawatan rutin.",
+        stars: 5,
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: "Hair Coloring",
+    description: "Hasilnya bagus banget sesuai referensi yang aku kasih, skillnya mantap dan hasilnya merata sempurna",
+    price: 350000,
+    image: "/images/coloring.jpg",
+    href: "/booking?service=coloring",
+    rating: 4.6,
+    reviews: 18,
+    googleReviews: [
+      {
+        name: "Mega Wulandari",
+        avatar: "M",
+        text: "Warnanya sesuai foto referensi, tekniknya bagus dan merata. Sangat puas!",
+        stars: 5,
+      },
+      {
+        name: "Yuli Astuti",
+        avatar: "Y",
+        text: "Cat rambutnya bagus dan tahan lama, sudah sebulan warnanya masih cerah.",
+        stars: 5,
+      },
+      {
+        name: "Tika Permata",
+        avatar: "T",
+        text: "Mbaknya sabar ngejelasin pilihan warna, hasilnya melebihi ekspektasi!",
+        stars: 4,
+      },
+    ],
+  },
+]

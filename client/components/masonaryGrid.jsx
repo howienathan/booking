@@ -1,12 +1,12 @@
 import React from 'react'
 
 const images = [
-    "/mimosa.png",
-    "/jake.jpg",
     "/isi.jpg",
     "/image.png",
-    "/mimosa.png",
-    "/jake.jpg",
+    "/isi.jpg",
+    "/image.png",
+    "/isi.jpg",
+    "/image.png",
     "/isi.jpg",
     "/image.png",
     

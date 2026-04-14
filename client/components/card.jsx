@@ -63,7 +63,6 @@ const Card = ({
             <Link href={href} className="inline-flex items-center px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg font-medium shadow-sm transition">
               Book Now
             </Link>
-            <Link href={href} className="hidden md:inline-block text-sm text-pink-600 hover:underline">Details</Link>
           </div>
         </div>
       </div>

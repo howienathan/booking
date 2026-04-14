@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { Upload, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Upload, AlertCircle, CheckCircle2 } from "lucide-react";
 
 const CreateProduct = () => {
   const navigate = useNavigate();
@@ -18,29 +18,40 @@ const CreateProduct = () => {
     stock: "",
     productNumber: "",
   });
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const { name, price, desc, stock, productNumber } = formData;
 
-  // handle untuk jika admin belum login akan di arahkan ke login page 
+  // redirect kalau belum login
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
 
-  // fungsi untuk change data
+  // handle input
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // 🔥 validasi langsung untuk stock
+    if (name === "stock") {
+      if (value > 10) {
+        setError("Stock maksimal hanya 10");
+      } else {
+        setError("");
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
-    setError("");
   };
 
-  // fungsi untuk handle file change
+  // handle file
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     setFiles(selectedFiles);
@@ -50,16 +61,22 @@ const CreateProduct = () => {
     );
   };
 
-  // handle submit
+  // submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // change validasi sebelum submit kalo belom ada image nya
       if (!name.trim() || !price || !desc.trim() || files.length === 0) {
         setError("Please fill in all required fields and add at least one image");
+        setIsLoading(false);
+        return;
+      }
+
+      // 🔥 VALIDASI STOCK MAX 10
+      if (stock && Number(stock) > 10) {
+        setError("Stock maksimal hanya 10");
         setIsLoading(false);
         return;
       }
@@ -95,8 +112,7 @@ const CreateProduct = () => {
         dataToSubmit.append("images", file);
       });
 
-      // response tunggu axios post untuk data sumbit dari product
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:5000/api/products",
         dataToSubmit,
         {
@@ -108,16 +124,25 @@ const CreateProduct = () => {
       );
 
       setSuccess(true);
-      setFormData({ name: "", price: "", desc: "", stock: "", productNumber: "" });
+      setFormData({
+        name: "",
+        price: "",
+        desc: "",
+        stock: "",
+        productNumber: "",
+      });
       setFiles([]);
       setPreviewImages([]);
-      
+
       setTimeout(() => {
         navigate("/product");
       }, 1500);
 
     } catch (error) {
-      const msg = error.response?.data?.message || error.message || "Gagal membuat product";
+      const msg =
+        error.response?.data?.message ||
+        error.message ||
+        "Gagal membuat product";
       setError(msg);
     } finally {
       setIsLoading(false);
@@ -125,154 +150,143 @@ const CreateProduct = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-8 pb-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-2 tracking-tight">
-            Create Product
-          </h1>
-          <p className="text-lg text-slate-600">Add a new product to your store</p>
-        </div>
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-            <p className="text-red-700 text-sm font-medium">{error}</p>
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <p className="text-green-700 text-sm font-medium">Product created successfully! Redirecting...</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
-
-          <div className="space-y-8">
-
+    <div className="min-h-screen bg-slate-100 pt-10 pb-14 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-3xl">
+        <div className="mb-10 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/40">
+          <div className="mb-8 grid gap-4 lg:grid-cols-[1.5fr_1fr] lg:items-center">
             <div>
-              <h2 className="text-lg font-semibold text-slate-900 mb-5 pb-3 border-b border-slate-200">Product Details</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                
-                <div className="sm:col-span-1">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Product Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={name}
-                    onChange={handleChange}
-                    placeholder="Enter Your Product Name"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-                    required
-                  />
-                </div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-500">
+                New product
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold text-slate-900">
+                Create Product
+              </h1>
+              <p className="mt-2 text-slate-600">
+                Add a new item to your catalog with stunning visuals and clear details.
+              </p>
+            </div>
+            <div className="rounded-[1.5rem] bg-slate-50 p-5 text-sm text-slate-600">
+              <p className="font-medium text-slate-800">Pro tip</p>
+              <p className="mt-2 leading-6">
+                Keep stock below 10, add rich descriptions, and upload sharp images for better results.
+              </p>
+            </div>
+          </div>
 
-                <div className="sm:col-span-1">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Price (IDR) *</label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={price}
-                    onChange={handleChange}
-                    placeholder="0"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-                    required
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Description *</label>
-                  <textarea
-                    name="desc"
-                    value={desc}
-                    onChange={handleChange}
-                    placeholder="Describe your product features and benefits..."
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition resize-none"
-                    rows="5"
-                    required
-                  />
-                </div>
+          {error && (
+            <div className="mb-6 rounded-[1.5rem] border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm shadow-red-50/80">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 text-red-600" />
+                <p>{error}</p>
               </div>
             </div>
+          )}
 
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 mb-5 pb-3 border-b border-slate-200">Inventory & Details</h2>
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Stock</label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={stock}
-                    onChange={handleChange}
-                    placeholder="Give stock at least 10 if u can make those jobs 10 a day"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition"
-                  />
-                </div>
+          {success && (
+            <div className="mb-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm shadow-emerald-50/80">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" />
+                <p>Product created successfully!</p>
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-slate-700">Product name</span>
+                <input
+                  type="text"
+                  name="name"
+                  value={name}
+                  onChange={handleChange}
+                  placeholder="Enter product name"
+                  className="w-full rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 focus:bg-white"
+                  required
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-slate-700">Price</span>
+                <input
+                  type="number"
+                  name="price"
+                  value={price}
+                  onChange={handleChange}
+                  placeholder="0"
+                  className="w-full rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 focus:bg-white"
+                  required
+                />
+              </label>
             </div>
 
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 mb-5 pb-3 border-b border-slate-200">Product Images *</h2>
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-slate-700">Description</span>
+              <textarea
+                name="desc"
+                value={desc}
+                onChange={handleChange}
+                placeholder="Write a short product description"
+                className="min-h-[140px] w-full rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 focus:bg-white"
+                required
+              />
+            </label>
+
+            <div className="grid gap-6 ">
+              <label className="space-y-2">
+                <span className="text-sm font-medium text-slate-700">Stock (max 10)</span>
+                <input
+                  type="number"
+                  name="stock"
+                  value={stock}
+                  onChange={handleChange}
+                  min={0}
+                  max={10}
+                  placeholder="0"
+                  className="w-full rounded-[1.5rem] border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900 focus:bg-white"
+                />
+              </label>
               
-              <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-slate-400 transition cursor-pointer bg-slate-50">
+            </div>
+
+            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">Product images</p>
+                  <p className="text-xs text-slate-500">Upload one or more image files</p>
+                </div>
+              </div>
+              <label className="mt-3 flex cursor-pointer items-center justify-center gap-2 rounded-[1.5rem] border-2 border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-600 transition hover:border-slate-900 hover:text-slate-900">
+                <Upload className="h-5 w-5" />
+                <span>Click to upload or drag files here</span>
                 <input
                   type="file"
                   multiple
                   onChange={handleFileChange}
                   className="hidden"
-                  id="file-upload"
-                  accept="image/*"
                   required
                 />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-sm font-semibold text-slate-900 mb-1">Click to upload or drag and drop</p>
-                  <p className="text-xs text-slate-500">PNG, JPG, GIF up to 10MB each</p>
-                </label>
-              </div>
-
-              {previewImages.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-sm font-semibold text-slate-700 mb-4">
-                    {previewImages.length} image{previewImages.length !== 1 ? "s" : ""} selected
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {previewImages.map((src, idx) => (
-                      <div key={idx} className="relative group">
-                        <img
-                          src={src || "/placeholder.svg"}
-                          alt={`preview-${idx}`}
-                          className="w-full h-32 object-cover rounded-lg border border-slate-200 group-hover:border-slate-400 transition"
-                        />
-                        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 rounded-lg transition" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              </label>
             </div>
+
+            {previewImages.length > 0 && (
+              <div className="grid gap-3 sm:grid-cols-3">
+                {previewImages.map((src, i) => (
+                  <div key={i} className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
+                    <img src={src} alt={`Preview ${i + 1}`} className="h-28 w-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
 
             <button
               type="submit"
               disabled={isLoading || success}
-              className="w-full py-4 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800 disabled:bg-slate-400 transition flex items-center justify-center gap-2"
+              className="inline-flex w-full items-center justify-center rounded-[1.5rem] bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Creating product...
-                </>
-              ) : success ? (
-                <>
-                  <CheckCircle2 className="w-5 h-5" />
-                  Product Created!
-                </>
-              ) : (
-                "Create Product"
-              )}
+              {isLoading ? "Loading..." : "Create Product"}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

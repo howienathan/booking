@@ -41,7 +41,7 @@ const Footer = () => {
                     <div>
                         <h4 className="mb-8 text-xl font-semibold text-white">Newsletter</h4>
                         <p className="text-gray-400">
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                            tell us what u want to say
                         </p>
                         <form action="" className="mt-5">
                             <div className="mb-5">

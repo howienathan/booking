@@ -17,7 +17,7 @@ const AboutPage = () => {
         <article className="max-w-screen-xl mx-auto px-4 py-16">
             <section className="grid md:grid-cols-2 gap-12 items-center mb-20">
                 <figure className="rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition duration-300">
-                  <Image src="/mimosa.png" alt="Salon Mimi interior" width={650} height={579} className="w-full h-auto object-cover" />
+                  <Image src="/image.png" alt="Salon Mimi interior" width={650} height={579} className="w-full h-auto object-cover" />
                 </figure>
                 <div className="space-y-8">
                     <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">

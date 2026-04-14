@@ -20,9 +20,7 @@ export default function Galery() {
             All Memories About Salon Mimi
           </h1>
           <p className="max-w-2xl text-gray-600">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia
-            eveniet esse reiciendis accusantium voluptatum consequatur
-            laboriosam qui voluptates itaque facere.
+            if you want to know were here since 20 years ago, you can see the memories that we have in this galery
           </p>
         </div>
 
